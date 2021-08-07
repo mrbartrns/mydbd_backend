@@ -10,7 +10,7 @@ class Profile(models.Model):
     nickname = models.CharField(max_length=20, blank=True)
 
     def __str__(self):
-        return self.nickname
+        return self.nickname if self.nickname else self.user.username
 
 
 @receiver(post_save, sender=User)
