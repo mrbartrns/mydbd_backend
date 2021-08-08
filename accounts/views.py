@@ -1,7 +1,8 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .serializers import *
 
@@ -27,3 +28,12 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             pass
             # generate token
+
+
+# test view
+class TokenTestView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JSONWebTokenAuthentication]
+
+    def get(self, request):
+        return Response({'authenticated_field': "you can see this field if you are authenticated."})
