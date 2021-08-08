@@ -1,8 +1,9 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
 from .serializers import *
 
@@ -30,10 +31,16 @@ class UserLoginView(APIView):
             # generate token
 
 
-# test view
-class TokenTestView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JSONWebTokenAuthentication]
+# EXAMPLE
+@api_view(['GET'])
+def validate_jwt_token(request):
+    try:
+        token = request.META.get('HTTP_AUTHORIZATION', ' ')
+        data = {'token': token.split(" ")[1]}
+        validated_data = VerifyJSONWebTokenSerializer().validate(data)
+        user = validated_data['user']
+        user = UserSerializer(user)
+    except Exception as e:
+        return Response(e)
 
-    def get(self, request):
-        return Response({'authenticated_field': "you can see this field if you are authenticated."})
+    return Response(user.data, status=status.HTTP_200_OK)
