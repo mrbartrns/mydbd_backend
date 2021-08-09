@@ -21,14 +21,15 @@ class UserRegisterView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserLoginView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        serializer = LoginUserSerializer(data=request.data)
-        if serializer.is_valid():
-            pass
-            # generate token
+# obtain-token-view generates token when user attempts logging in
+# class UserLoginView(APIView):
+#     permission_classes = [AllowAny]
+#
+#     def post(self, request):
+#         serializer = LoginUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             pass
+#             # generate token
 
 
 # EXAMPLE

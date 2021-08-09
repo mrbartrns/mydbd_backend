@@ -144,7 +144,7 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,  # 유효기간이 지나면 새로운 토큰반환의 refresh
     'JWT_EXPIRATION_DELTA': timedelta(hours=1),  # Access Token의 만료 시간
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=3),  # Refresh Token의 만료 시간
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'accounts.custom_responses.my_jwt_response_handler'
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'backend.custom_responses.my_jwt_response_handler'
 }
 
 REST_USE_JWT = True

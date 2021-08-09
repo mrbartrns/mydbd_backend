@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core import exceptions
 from rest_framework import serializers
 from rest_framework_jwt.settings import api_settings
 
@@ -14,6 +16,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
+    def validate(self, data):
+        user = User(**data)
+        password = data.get('password')
+        errors = {}
+        try:
+            validate_password(password=password, user=user)
+        except exceptions.ValidationError as e:
+            errors['password'] = list(e.messages)
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        # do original validate
+        return super(RegisterSerializer, self).validate(data)
+
+    # create method have to return what I want to make
     def create(self, validated_data):
         user = User.objects.create_user(
             validated_data['username'], validated_data['email'], validated_data['password']
