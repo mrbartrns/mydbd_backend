@@ -13,6 +13,9 @@ class Profile(models.Model):
         return self.nickname if self.nickname else self.user.username
 
 
+# error occurs when updating profile
+# when user attempt to create user model with nickname occurs error
+# TODO: Try to use just Views or unregister user profile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -21,4 +24,5 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
+    # user(object).profile.save()
     instance.profile.save()

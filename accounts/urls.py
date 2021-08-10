@@ -1,9 +1,8 @@
 from django.urls import path
 
-
 from .views import *
 
 urlpatterns = [
     path('signup', UserRegisterView.as_view(), name='signup'),
-    path('validate', validate_jwt_token, name='validate-token'),
+    path('validate', ValidateJwtTokenView.as_view(), name='validate-token'),
 ]

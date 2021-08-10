@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
@@ -30,6 +30,22 @@ class UserRegisterView(APIView):
 #         if serializer.is_valid():
 #             pass
 #             # generate token
+
+class ValidateJwtTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION', ' ')
+            print(token)
+            data = {'token': token.split(" ")[1]}
+            validated_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = validated_data['user']
+            user = UserSerializer(user)
+        except Exception as e:
+            return Response(e)
+
+        return Response(user.data, status=status.HTTP_200_OK)
 
 
 # EXAMPLE
