@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'rest_framework_jwt',
     'rest_framework_simplejwt',
     # 'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
@@ -135,22 +134,11 @@ REST_FRAMEWORK = {
     #     'rest_framework.permissions.IsAdminUser',
     # ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
     ),
 }
-
-# JWT_AUTH = {
-#     'JWT_SECRET_KEY': SECRET_KEY,
-#     'JWT_ALGORITHM': 'HS256',
-#     'JWT_VERIFY_EXPIRATION': True,  # 토큰검증
-#     'JWT_ALLOW_REFRESH': True,  # 유효기간이 지나면 새로운 토큰반환의 refresh
-#     'JWT_EXPIRATION_DELTA': timedelta(hours=1),  # Access Token의 만료 시간
-#     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=3),  # Refresh Token의 만료 시간
-#     'JWT_RESPONSE_PAYLOAD_HANDLER': 'backend.custom_responses.my_jwt_response_handler'
-# }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
