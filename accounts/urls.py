@@ -9,5 +9,5 @@ urlpatterns = [
     path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
     path('api/token/verify', TokenVerifyView.as_view(), name='token-verify'),
     path('api/logout', UserLogoutView.as_view(), name='token-logout'),
-    path('validate', ValidateSimpleJwtTokenView.as_view())
+    path('validate', ValidateSimpleJwtTokenView.as_view(), name='token-validate')
 ]
