@@ -6,4 +6,5 @@ class ApisConfig(AppConfig):
     name = 'apis'
 
     def ready(self):
+        # noinspection PyUnresolvedReferences
         import apis.handlers
