@@ -112,6 +112,7 @@ class ItemAddon(models.Model):
             ItemCategory,
             on_delete=models.SET_NULL,
             null=True,
+            blank=True,
             verbose_name="아이템 카테고리",
         ),
     )
