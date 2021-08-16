@@ -131,8 +131,12 @@ class Category(models.Model):
     item_addon = models.OneToOneField(ItemAddon, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        if self.perk:
-            return self.perk.title
+        if self.killer:
+            return self.killer.name
+        elif self.survivor:
+            return self.survivor.name
+        elif self.perk:
+            return self.perk.name
         elif self.item:
             return self.item.name
         return self.item_addon.name
