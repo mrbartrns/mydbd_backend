@@ -24,11 +24,6 @@ class SurvivorAdmin(ModelAdmin):
     inlines = (OwnerModelInline,)
 
 
-class ItemCategoryInline(admin.StackedInline):
-    model = ItemCategory
-    can_delete = False
-
-
 class PerkAdmin(ModelAdmin):
     list_display = ['id', 'name', 'name_kor', 'owner', 'dt_created', 'dt_modified']
     list_display_links = ['id', 'name', 'name_kor']

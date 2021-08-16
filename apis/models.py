@@ -51,7 +51,7 @@ class Perk(models.Model):
     owner = models.ForeignKey(
         Owner, on_delete=models.SET_NULL, null=True, verbose_name="퍽 소유자"
     )
-    category = models.CharField(max_length=256, choices=CATEGORY, default="Killer")
+    killer_or_survivor = models.CharField(max_length=256, choices=CATEGORY, default="Killer")
     img_url = models.URLField(verbose_name="이미지 url", blank=True)
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="date created")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="date modified")
@@ -121,3 +121,17 @@ class ItemAddon(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Category(models.Model):
+    perk = models.OneToOneField(Perk, null=True, blank=True, on_delete=models.CASCADE)
+    killer = models.OneToOneField(Killer, null=True, blank=True, on_delete=models.CASCADE)
+    item = models.OneToOneField(Item, null=True, blank=True, on_delete=models.CASCADE)
+    item_addon = models.OneToOneField(ItemAddon, null=True, blank=True, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        if self.perk:
+            return self.perk.title
+        elif self.item:
+            return self.item.name
+        return self.item_addon.name
