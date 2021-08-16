@@ -124,8 +124,9 @@ class ItemAddon(models.Model):
 
 
 class Category(models.Model):
-    perk = models.OneToOneField(Perk, null=True, blank=True, on_delete=models.CASCADE)
     killer = models.OneToOneField(Killer, null=True, blank=True, on_delete=models.CASCADE)
+    survivor = models.OneToOneField(Survivor, null=True, blank=True, on_delete=models.CASCADE)
+    perk = models.OneToOneField(Perk, null=True, blank=True, on_delete=models.CASCADE)
     item = models.OneToOneField(Item, null=True, blank=True, on_delete=models.CASCADE)
     item_addon = models.OneToOneField(ItemAddon, null=True, blank=True, on_delete=models.CASCADE)
 

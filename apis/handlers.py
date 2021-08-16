@@ -7,7 +7,10 @@ from .models import *
 @receiver(post_save, sender=Killer)
 def create_killer_owner(sender, instance, created, **kwargs):
     if created:
+        # create owner object
         Owner.objects.create(killer=instance)
+        # create category object
+        Category.objects.create(killer=instance)
 
 
 # @receiver(post_save, sender=Killer)
