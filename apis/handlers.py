@@ -5,24 +5,36 @@ from .models import *
 
 
 @receiver(post_save, sender=Killer)
-def create_killer_owner(sender, instance, created, **kwargs):
+def create_killer_owner_and_category(sender, instance, created, **kwargs):
     if created:
-        # create owner object
+        # create Owner object
         Owner.objects.create(killer=instance)
-        # create category object
+        # create Category object
         Category.objects.create(killer=instance)
 
 
-# @receiver(post_save, sender=Killer)
-# def save_killer_owner(sender, instance, created, **kwargs):
-#     instance.owner.save()
-
-
 @receiver(post_save, sender=Survivor)
-def create_survivor_owner(sender, instance, created, **kwargs):
+def create_survivor_owner_and_category(sender, instance, created, **kwargs):
     if created:
+        # create Owner object
         Owner.objects.create(survivor=instance)
+        # create Category object
+        Category.objects.create(survivor=instance)
 
-# @receiver(post_save, sender=Survivor)
-# def save_survivor_owner(sender, instance, created, **kwargs):
-#     instance.owner.save()
+
+@receiver(post_save, sender=Perk)
+def create_perk_category(sender, instance, created, **kwargs):
+    if created:
+        Category.objects.create(perk=instance)
+
+
+@receiver(post_save, sender=Item)
+def create_item_category(sender, instance, created, **kwargs):
+    if created:
+        Category.objects.create(item=instance)
+
+
+@receiver(post_save, sender=ItemAddon)
+def create_item_category(sender, instance, created, **kwargs):
+    if created:
+        Category.objects.create(item_addon=instance)
