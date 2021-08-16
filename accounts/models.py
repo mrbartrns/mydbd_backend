@@ -22,7 +22,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
 
 
+# user and profile are updated in one call
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    # user(object).profile.save()
     instance.profile.save()
