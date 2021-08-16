@@ -6,7 +6,7 @@ class Killer(models.Model):
     name = models.CharField(max_length=256, unique=True, verbose_name="영문 이름")
     name_kor = models.CharField(max_length=256, unique=True, verbose_name="한글 이름")
     speed = models.FloatField(verbose_name="이동 속도(m/s)", default=4.6)
-    terror_radius = models.PositiveIntegerField(verbose_name="공포범위(m/s)")
+    terror_radius = models.PositiveIntegerField(default=32, verbose_name="공포범위(m/s)")
     img_url = models.URLField(verbose_name="이미지 url", blank=True)
     note = models.TextField(verbose_name='비고', blank=True)
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
@@ -21,6 +21,7 @@ class Survivor(models.Model):
     name_kor = models.CharField(max_length=256, unique=True, verbose_name="한글 이름")
     speed = models.FloatField(verbose_name='이동 속도(m/s)', default=4.0)
     img_url = models.URLField(verbose_name="이미지 url", blank=True)
+    note = models.TextField(verbose_name='비고', blank=True)
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
 
