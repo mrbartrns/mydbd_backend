@@ -142,6 +142,12 @@ class Category(models.Model):
         return self.item_addon.name
 
 
+# image OneToManyField model
+class Photo(models.Model):
+    photo_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='images/', null=True, blank=True)
+
+
 # will be added in another app model
 """
 class Comment( models.Model ):
