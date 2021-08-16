@@ -140,3 +140,12 @@ class Category(models.Model):
         elif self.item:
             return self.item.name
         return self.item_addon.name
+
+
+# will be added in another app model
+"""
+class Comment( models.Model ):
+    text = models.TextField()
+    create_date_time = models.DateTimeField()
+    parent_comment = models.ForeignKey( 'self' )
+"""
