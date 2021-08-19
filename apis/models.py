@@ -143,9 +143,14 @@ class Category(models.Model):
 
 
 # image OneToManyField model
-# class Photo(models.Model):
-#     photo_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-#     image = models.ImageField(upload_to='images/', null=True, blank=True)
+class Photo(models.Model):
+    photo_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='images/', null=True, blank=True)
+    dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
+    dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
+
+    def __str__(self):
+        return str(self.image)
 
 
 # will be added in another app model

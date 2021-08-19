@@ -52,8 +52,14 @@ class ItemAddonAdmin(ModelAdmin):
     inlines = (CategoryInline,)
 
 
+class PhotoAdmin(ModelAdmin):
+    list_display = ['id', 'image', 'photo_category', 'dt_created', 'dt_modified']
+    list_display_links = ['id', 'image']
+
+
 admin.site.register(Killer, KillerAdmin)
 admin.site.register(Survivor, SurvivorAdmin)
 admin.site.register(Perk, PerkAdmin)
 admin.site.register(ItemCategory, ItemCategoryAdmin)
 admin.site.register(ItemAddon, ItemAddonAdmin)
+admin.site.register(Photo, PhotoAdmin)
