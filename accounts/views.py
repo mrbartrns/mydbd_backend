@@ -40,7 +40,7 @@ class UserLogoutView(APIView):
 
             return Response({'logout': 'successfully logged out.'}, status=status.HTTP_205_RESET_CONTENT)
         except TokenError as e:
-            return Response({'errors': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # test
