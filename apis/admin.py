@@ -60,6 +60,7 @@ class PhotoAdmin(ModelAdmin):
 admin.site.register(Killer, KillerAdmin)
 admin.site.register(Survivor, SurvivorAdmin)
 admin.site.register(Perk, PerkAdmin)
+admin.site.register(Item, ItemAdmin)
 admin.site.register(ItemCategory, ItemCategoryAdmin)
 admin.site.register(ItemAddon, ItemAddonAdmin)
 admin.site.register(Photo, PhotoAdmin)
