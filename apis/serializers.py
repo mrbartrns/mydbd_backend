@@ -63,6 +63,13 @@ class ItemAddonSerializer(serializers.ModelSerializer):
         return ImageSerializer(images, many=True).data
 
 
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
