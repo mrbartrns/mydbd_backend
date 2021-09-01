@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'apis',
     'services',
     'mptt',
+    'rest_framework_recursive',
 ]
 
 MIDDLEWARE = [
