@@ -1,9 +1,11 @@
 from accounts.serializers import *
+from apis.serializers import *
 from .models import *
 
 
 class CommentRecursiveSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Comment
