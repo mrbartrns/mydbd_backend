@@ -21,3 +21,10 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.author}'
+
+
+# @receiver(post_save, sender=Comment)
+# def check_comment_depth(sender, instance, created, **kwargs):
+#     if created and instance.parent:
+#         instance.depth = instance.parent.depth + 1
+#         instance.save()
