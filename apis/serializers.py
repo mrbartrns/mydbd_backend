@@ -4,7 +4,6 @@ from .models import *
 
 class KillerSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Killer
@@ -13,10 +12,6 @@ class KillerSerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = obj.category.photo.all()
         return ImageSerializer(images, many=True).data
-
-    def get_comments(self, obj):
-        comments = obj.category.comments.filter(depth=0)
-        return CommentRecursiveSerializer(comments, many=True).data
 
 
 class SurvivorSerializer(serializers.ModelSerializer):
