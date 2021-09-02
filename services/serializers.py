@@ -5,7 +5,6 @@ from .models import *
 
 class CommentRecursiveSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -24,7 +23,12 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CommentPostSerializer(serializers.Serializer):
-    parent_id = serializers.PrimaryKeyRelatedField(required=False, source='parent',
-                                                   queryset=Comment.objects.all())
-    content = serializers.CharField()
+# serializer.Serializer를 이용하여 사용하지 않아도 ModelSerializer를 불러와 원하는 field만 입력받도록 하면 된다.
+class CommentPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('parent', 'content')
+
+    # def update(self, instance, validated_data):
+    #     instance.content = validated_data.get('content', instance.content)
+    #     instance.parent = validated_data.get('parent', instance.parent)
