@@ -59,10 +59,11 @@ class ItemListSerializer(serializers.ModelSerializer):
 
 class ItemAddonListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
+    item_category = ItemCategorySerializer(read_only=True)
 
     class Meta:
         model = ItemAddon
-        fields = ('name', 'name_kor', 'description', 'dt_created', 'dt_modified', 'images')
+        fields = ('name', 'name_kor', 'description', 'dt_created', 'dt_modified', 'images', 'item_category')
 
     def get_images(self, obj):
         images = obj.category.photo.all()
@@ -157,13 +158,13 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 class ItemAddonDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    item_category = ItemCategorySerializer(read_only=True)
 
     class Meta:
         model = ItemAddon
         fields = (
-            'name', 'name_kor', 'description', 'images', 'comments',
-            'dt_created',
-            'dt_modified')
+            'name', 'name_kor', 'description', 'images', 'comments', 'item_category',
+            'dt_created', 'dt_modified')
 
     def get_images(self, obj):
         image = obj.category.photo.all()

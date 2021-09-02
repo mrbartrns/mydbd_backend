@@ -120,6 +120,7 @@ class Item(models.Model):
 class ItemAddon(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="영문 이름")
     name_kor = models.CharField(max_length=256, unique=True, verbose_name="한글 이름")
+    item_category = models.ForeignKey(ItemCategory, on_delete=models.SET_NULL, null=True, related_name='addons')
     description = models.TextField(verbose_name="설명")
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
@@ -162,3 +163,5 @@ class Photo(models.Model):
 
     def __str__(self):
         return str(self.image)
+
+
