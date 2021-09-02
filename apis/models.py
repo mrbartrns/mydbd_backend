@@ -12,6 +12,9 @@ class Killer(models.Model):
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return self.name
 
@@ -24,6 +27,9 @@ class Survivor(models.Model):
     note = models.TextField(verbose_name='비고', blank=True)
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
+
+    class Meta:
+        ordering = ['-id']
 
     def __str__(self):
         return self.name
@@ -55,6 +61,9 @@ class Perk(models.Model):
     img_url = models.URLField(verbose_name="이미지 url", blank=True)
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="date created")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="date modified")
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -99,6 +108,9 @@ class Item(models.Model):
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return self.name
 
@@ -118,6 +130,9 @@ class ItemAddon(models.Model):
     )
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self) -> str:
         return self.name
@@ -144,10 +159,13 @@ class Category(models.Model):
 
 # image OneToManyField model
 class Photo(models.Model):
-    photo_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    photo_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, related_name='photo')
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return str(self.image)

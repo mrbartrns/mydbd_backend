@@ -11,7 +11,7 @@ class CommentRecursiveSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'children', 'content', 'category', 'depth', 'dt_created', 'dt_modified')
 
     def get_fields(self):
-        # parent에서 child를 불러올 때에는 related_name으로 불러옴
+        # parent에서 child를 불러올 때에는 related_name으로 불러옴, depth 차이가 1일 때에만 가능
         fields = super().get_fields()
         fields['children'] = CommentRecursiveSerializer(many=True)
         return fields
