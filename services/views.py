@@ -19,6 +19,7 @@ class KillerCommentRecursiveListView(APIView):
 
 
 # All comments of killer
+# TODO: remove GET request
 class AllKillerCommentListView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []

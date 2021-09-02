@@ -35,6 +35,6 @@ def create_item_category(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=ItemAddon)
-def create_item_category(sender, instance, created, **kwargs):
+def create_item_addon_category(sender, instance, created, **kwargs):
     if created:
         Category.objects.create(item_addon=instance)

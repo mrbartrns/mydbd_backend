@@ -12,5 +12,5 @@ urlpatterns = [
     path('detail/survivor/<int:survivor_id>', SurvivorDetailView.as_view(), name='survivor-detail'),
     path('detail/perk/<int:perk_id>', PerkDetailView.as_view(), name='perk-detail'),
     path('detail/item/<int:item_id>', ItemDetailView.as_view(), name='item-detail'),
-    path('detail/item-addon/<int:addon_id>', ItemAddonDetailView.as_view(), name='item_addon-detail')
+    path('detail/addon/<int:addon_id>', ItemAddonDetailView.as_view(), name='item_addon-detail')
 ]

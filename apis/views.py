@@ -17,7 +17,7 @@ class KillerListView(APIView):
         paginator = Paginator(killers, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(KillerSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(KillerListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class SurvivorListView(APIView):
@@ -29,7 +29,7 @@ class SurvivorListView(APIView):
         paginator = Paginator(survivors, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(SurvivorSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(SurvivorListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class PerkListView(APIView):
@@ -41,7 +41,7 @@ class PerkListView(APIView):
         paginator = Paginator(perks, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(PerkSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(PerkListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class ItemListView(APIView):
@@ -53,7 +53,7 @@ class ItemListView(APIView):
         paginator = Paginator(items, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(ItemSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(ItemListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class ItemAddonListView(APIView):
@@ -65,18 +65,16 @@ class ItemAddonListView(APIView):
         paginator = Paginator(item_addons, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(ItemAddonSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(ItemAddonListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
-# TODO: after adding comments, HAVE TO REFACTOR THESE
-# TODO: make popularity now regarding to click
 class KillerDetailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
 
     def get(self, request, killer_id):
         killer = Killer.objects.get(id=killer_id)
-        return Response(KillerSerializer(killer).data, status=HTTP_200_OK)
+        return Response(KillerDetailSerializer(killer).data, status=HTTP_200_OK)
 
 
 class SurvivorDetailView(APIView):
@@ -85,7 +83,7 @@ class SurvivorDetailView(APIView):
 
     def get(self, request, survivor_id):
         survivor = Survivor.objects.get(id=survivor_id)
-        return Response(SurvivorSerializer(survivor).data, status=HTTP_200_OK)
+        return Response(SurvivorDetailSerializer(survivor).data, status=HTTP_200_OK)
 
 
 class PerkDetailView(APIView):
@@ -94,7 +92,7 @@ class PerkDetailView(APIView):
 
     def get(self, request, perk_id):
         perk = Perk.objects.get(id=perk_id)
-        return Response(PerkSerializer(perk).data, status=HTTP_200_OK)
+        return Response(PerkDetailSerializer(perk).data, status=HTTP_200_OK)
 
 
 class ItemDetailView(APIView):
@@ -103,7 +101,7 @@ class ItemDetailView(APIView):
 
     def get(self, request, item_id):
         item = Item.objects.get(id=item_id)
-        return Response(ItemSerializer(item).data, status=HTTP_200_OK)
+        return Response(ItemDetailSerializer(item).data, status=HTTP_200_OK)
 
 
 class ItemAddonDetailView(APIView):
@@ -112,4 +110,4 @@ class ItemAddonDetailView(APIView):
 
     def get(self, request, addon_id):
         addon = ItemAddon.objects.get(id=addon_id)
-        return Response(ItemAddonSerializer(addon).data, status=HTTP_200_OK)
+        return Response(ItemAddonDetailSerializer(addon).data, status=HTTP_200_OK)

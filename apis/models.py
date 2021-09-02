@@ -55,7 +55,7 @@ class Perk(models.Model):
     name_kor = models.CharField(max_length=256, unique=True, verbose_name="한글 퍽 이름")
     description = models.TextField()
     owner = models.ForeignKey(
-        Owner, on_delete=models.SET_NULL, null=True, verbose_name="퍽 소유자"
+        Owner, on_delete=models.SET_NULL, null=True, verbose_name="퍽 소유자", related_name='perks'
     )
     killer_or_survivor = models.CharField(max_length=256, choices=CATEGORY, default="Killer")
     img_url = models.URLField(verbose_name="이미지 url", blank=True)
@@ -98,11 +98,13 @@ class Item(models.Model):
     durability = models.IntegerField(default=0, verbose_name="내구도")
     rarity = models.IntegerField(choices=RARITY, default=1, verbose_name="희귀도")
     description = models.TextField(verbose_name="설명")
+    # 하나의 테이블은 다른 하나와의 관계만 가질 수 있다.
     item_category = models.ForeignKey(
         ItemCategory,
         verbose_name="아이템 카테고리",
         null=True,
         on_delete=models.SET_NULL,
+        related_name='items'
     )
     img_url = models.URLField(verbose_name="이미지 url", blank=True)
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
@@ -119,15 +121,6 @@ class ItemAddon(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="영문 이름")
     name_kor = models.CharField(max_length=256, unique=True, verbose_name="한글 이름")
     description = models.TextField(verbose_name="설명")
-    item_category = (
-        models.ForeignKey(
-            ItemCategory,
-            on_delete=models.SET_NULL,
-            null=True,
-            blank=True,
-            verbose_name="아이템 카테고리",
-        ),
-    )
     dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
 
@@ -169,12 +162,3 @@ class Photo(models.Model):
 
     def __str__(self):
         return str(self.image)
-
-
-# will be added in another app model
-"""
-class Comment( models.Model ):
-    text = models.TextField()
-    create_date_time = models.DateTimeField()
-    parent_comment = models.ForeignKey( 'self' )
-"""

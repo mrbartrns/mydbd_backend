@@ -1,3 +1,6 @@
+"""
+All List of game props do in api.serializer
+"""
 from accounts.serializers import *
 from apis.serializers import *
 from .models import *
