@@ -1,59 +1,67 @@
 from django.core.paginator import Paginator
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import apis.models as apis_models
 from .serializers import *
 
 
 # Create your views here.
-class KillerCommentRecursiveListView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+class CommentRecursiveView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        comments = Comment.objects.filter(category__killer__isnull=False, depth=0)
+        comments = apis_models.Comment.objets.filter(depth=0)
         return Response(CommentRecursiveSerializer(comments, many=True).data, status=status.HTTP_200_OK)
 
 
-# All comments of killer
-# TODO: remove GET request
-class AllKillerCommentListView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
-
-    def get(self, request):
-        comments = Comment.objects.filter(category__killer__isnull=False, depth=0)
-        return Response(CommentSerializer(comments, many=True).data, status=status.HTTP_200_OK)
-
-
-# All comments of killer=killer_id
-class KillerCommentListView(APIView):
+class CommentListAndCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, killer_id):
-        self.permission_classes = [AllowAny]
-        self.authentication_classes = []
-        comments = Comment.objects.filter(category__killer=killer_id, depth=0)
-        paginator = Paginator(comments, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        return Response(CommentRecursiveSerializer(page, many=True).data, status=status.HTTP_200_OK)
+    def get(self, request, category_name, obj_id):
+        comments = None
+        if category_name == 'killer':
+            comments = apis_models.Killer.objects.get(id=obj_id).category.comments.filter(depth=0)
+        elif category_name == 'survivor':
+            comments = apis_models.Survivor.objects.get(id=obj_id).category.comments.filter(depth=0)
+        elif category_name == 'perk':
+            comments = apis_models.Perk.objects.get(id=obj_id).category.comments.filter(depth=0)
+        elif category_name == 'item':
+            comments = apis_models.Item.objects.get(id=obj_id).category.comments.filter(depth=0)
+        elif category_name == 'addon':
+            comments = apis_models.ItemAddon.objects.get(id=obj_id).category.comments.filter(depth=0)
 
-    def post(self, request, killer_id):
+        if comments:
+            paginator = Paginator(comments, 10)
+            page_number = request.GET.get('page', 1)
+            page = paginator.get_page(page_number)
+            return Response(CommentRecursiveSerializer(page, many=True).data, status=status.HTTP_200_OK)
+        return Response({'error': '잘못된 접근입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, category_name, obj_id):
         serializer = CommentPostSerializer(data=request.data)
-        category = Category.objects.get(killer=killer_id)
-        if serializer.is_valid():
+        category = None
+
+        if category_name == 'killer':
+            category = apis_models.Killer.objects.get(id=obj_id).category
+        elif category_name == 'survivor':
+            category = apis_models.Survivor.objects.get(id=obj_id).category
+        elif category_name == 'item':
+            category = apis_models.Item.objects.get(id=obj_id).category
+        elif category_name == 'addon':
+            category = apis_models.ItemAddon.objects.get(id=obj_id).category
+
+        if category and serializer.is_valid():
             comment = serializer.save(author=request.user, category=category)
             return Response(CommentRecursiveSerializer(comment).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class KillerCommentDetailView(APIView):
+class CommentUpdateAndDeleteView(APIView):
     def put(self, request, pk):
-        comment = Comment.objects.get(id=pk)
+        comment = apis.models.Comment.objects.get(id=pk)
         serializer = CommentPostSerializer(comment, data=request.data)
         # check is_staff option in future
         if comment.author != request.user:
@@ -66,6 +74,8 @@ class KillerCommentDetailView(APIView):
 
     def delete(self, request, pk):
         # check is_staff option in future
-        comment = Comment.objects.get(id=pk)
+        comment = apis.models.Comment.objects.get(id=pk)
+        if comment.author != request.user:
+            return Response({'author': '본인 또는 관리자만 삭제가 가능합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
         comment.delete()
         return Response({'success': 'successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)

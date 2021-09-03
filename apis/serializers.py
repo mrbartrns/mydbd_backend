@@ -91,6 +91,12 @@ class PerkDetailSerializer(serializers.ModelSerializer):
         return CommentRecursiveSerializer(comments, many=True).data
 
 
+class ItemCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ItemCategory
+        fields = ('name', 'name_kor')
+
+
 class ItemListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
 
@@ -155,12 +161,6 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
         return CommentRecursiveSerializer(comments, many=True).data
-
-
-class ItemCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ItemCategory
-        fields = ('name', 'name_kor')
 
 
 class CategorySerializer(serializers.ModelSerializer):

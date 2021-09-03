@@ -1,13 +1,12 @@
 """
 All List of game props do in api.serializer
 """
-from accounts.serializers import *
-from apis.serializers import *
+import accounts.serializers as account_serializers
 from .models import *
 
 
 class CommentRecursiveSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = accounts_serializers.UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
