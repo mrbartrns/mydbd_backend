@@ -2,12 +2,6 @@ from services.serializers import *
 from .models import *
 
 
-class ItemCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ItemCategory
-        fields = ('name', 'name_kor')
-
-
 class KillerListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
 
@@ -18,68 +12,6 @@ class KillerListSerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = obj.category.photo.all()
         return ImageSerializer(images, many=True).data
-
-
-class SurvivorListSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Survivor
-        fields = '__all__'
-
-    def get_images(self, obj):
-        images = obj.category.photo.all()
-        return ImageSerializer(images, many=True).data
-
-
-class PerkListSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Perk
-        fields = '__all__'
-
-    def get_images(self, obj):
-        images = obj.category.photo.all()
-        return ImageSerializer(images, many=True).data
-
-
-class ItemListSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Item
-        fields = '__all__'
-
-    def get_images(self, obj):
-        # images = Photo.objects.filter(photo_category__item=obj)
-        images = obj.category.photo.all()
-        return ImageSerializer(images, many=True).data
-
-
-class ItemAddonListSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField()
-    item_category = ItemCategorySerializer(read_only=True)
-
-    class Meta:
-        model = ItemAddon
-        fields = ('name', 'name_kor', 'description', 'dt_created', 'dt_modified', 'images', 'item_category')
-
-    def get_images(self, obj):
-        images = obj.category.photo.all()
-        return ImageSerializer(images, many=True).data
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
-
-
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Photo
-        fields = ('image', 'dt_created', 'dt_modified')
 
 
 # TODO: paginate nested serializers
@@ -101,6 +33,18 @@ class KillerDetailSerializer(serializers.ModelSerializer):
         return CommentRecursiveSerializer(comments, many=True).data
 
 
+class SurvivorListSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Survivor
+        fields = '__all__'
+
+    def get_images(self, obj):
+        images = obj.category.photo.all()
+        return ImageSerializer(images, many=True).data
+
+
 class SurvivorDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -118,6 +62,18 @@ class SurvivorDetailSerializer(serializers.ModelSerializer):
         return CommentRecursiveSerializer(comments, many=True).data
 
 
+class PerkListSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Perk
+        fields = '__all__'
+
+    def get_images(self, obj):
+        images = obj.category.photo.all()
+        return ImageSerializer(images, many=True).data
+
+
 class PerkDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -133,6 +89,19 @@ class PerkDetailSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
         return CommentRecursiveSerializer(comments, many=True).data
+
+
+class ItemListSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Item
+        fields = '__all__'
+
+    def get_images(self, obj):
+        # images = Photo.objects.filter(photo_category__item=obj)
+        images = obj.category.photo.all()
+        return ImageSerializer(images, many=True).data
 
 
 class ItemDetailSerializer(serializers.ModelSerializer):
@@ -155,6 +124,19 @@ class ItemDetailSerializer(serializers.ModelSerializer):
         return CommentRecursiveSerializer(comments, many=True).data
 
 
+class ItemAddonListSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+    item_category = ItemCategorySerializer(read_only=True)
+
+    class Meta:
+        model = ItemAddon
+        fields = ('name', 'name_kor', 'description', 'dt_created', 'dt_modified', 'images', 'item_category')
+
+    def get_images(self, obj):
+        images = obj.category.photo.all()
+        return ImageSerializer(images, many=True).data
+
+
 class ItemAddonDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -173,3 +155,21 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
         return CommentRecursiveSerializer(comments, many=True).data
+
+
+class ItemCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ItemCategory
+        fields = ('name', 'name_kor')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = ('image', 'dt_created', 'dt_modified')
