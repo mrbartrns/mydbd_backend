@@ -1,7 +1,9 @@
 """
 All List of game props do in api.serializer
 """
-import accounts.serializers as account_serializers
+from rest_framework import serializers
+
+import accounts.serializers as accounts_serializers
 from .models import *
 
 

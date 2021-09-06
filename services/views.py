@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -5,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import apis.models as apis_models
-from .serializers import *
+import services.serializers as services_serializers
+from backend.permissions import *
 
 
 # Create your views here.
@@ -14,11 +17,12 @@ class CommentRecursiveView(APIView):
 
     def get(self, request):
         comments = apis_models.Comment.objets.filter(depth=0)
-        return Response(CommentRecursiveSerializer(comments, many=True).data, status=status.HTTP_200_OK)
+        return Response(services_serializers.CommentRecursiveSerializer(comments, many=True).data,
+                        status=status.HTTP_200_OK)
 
 
 class CommentListAndCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [Union[IsAuthenticated, ReadOnly]]
 
     def get(self, request, category_name, obj_id):
         comments = None
@@ -37,7 +41,8 @@ class CommentListAndCreateView(APIView):
             paginator = Paginator(comments, 10)
             page_number = request.GET.get('page', 1)
             page = paginator.get_page(page_number)
-            return Response(CommentRecursiveSerializer(page, many=True).data, status=status.HTTP_200_OK)
+            return Response(services_serializers.CommentRecursiveSerializer(page, many=True).data,
+                            status=status.HTTP_200_OK)
         return Response({'error': '잘못된 접근입니다.'}, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, category_name, obj_id):
@@ -55,26 +60,27 @@ class CommentListAndCreateView(APIView):
 
         if category and serializer.is_valid():
             comment = serializer.save(author=request.user, category=category)
-            return Response(CommentRecursiveSerializer(comment).data, status=status.HTTP_201_CREATED)
+            return Response(services_serializers.CommentRecursiveSerializer(comment).data,
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentUpdateAndDeleteView(APIView):
+    permission_classes = [IsOwnerOrStaff]
+
     def put(self, request, pk):
-        comment = apis.models.Comment.objects.get(id=pk)
-        serializer = CommentPostSerializer(comment, data=request.data)
-        # check is_staff option in future
-        if comment.author != request.user:
-            return Response({'author': '본인 또는 관리자만 수정이 가능합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        comment = apis_models.Comment.objects.get(id=pk)
+        serializer = services_serializers.CommentRecursiveSerializer(comment, data=request.data)
 
         if serializer.is_valid():
             comment = serializer.save()
-            return Response(CommentRecursiveSerializer(comment).data, status=status.HTTP_202_ACCEPTED)
+            return Response(services_serializers.CommentRecursiveSerializer(comment).data,
+                            status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         # check is_staff option in future
-        comment = apis.models.Comment.objects.get(id=pk)
+        comment = apis_models.Comment.objects.get(id=pk)
         if comment.author != request.user:
             return Response({'author': '본인 또는 관리자만 삭제가 가능합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
         comment.delete()

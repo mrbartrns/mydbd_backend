@@ -1,5 +1,7 @@
-from services.serializers import *
-from .models import *
+from rest_framework import serializers
+
+import services.serializers as services_serializers
+from .models import Killer, Survivor, Perk, Photo, Item, ItemAddon, ItemCategory, Category
 
 
 class KillerListSerializer(serializers.ModelSerializer):
@@ -30,7 +32,7 @@ class KillerDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
-        return CommentRecursiveSerializer(comments, many=True).data
+        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
 
 
 class SurvivorListSerializer(serializers.ModelSerializer):
@@ -59,7 +61,7 @@ class SurvivorDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
-        return CommentRecursiveSerializer(comments, many=True).data
+        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
 
 
 class PerkListSerializer(serializers.ModelSerializer):
@@ -88,7 +90,7 @@ class PerkDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
-        return CommentRecursiveSerializer(comments, many=True).data
+        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
 
 
 class ItemCategorySerializer(serializers.ModelSerializer):
@@ -127,7 +129,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
-        return CommentRecursiveSerializer(comments, many=True).data
+        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
 
 
 class ItemAddonListSerializer(serializers.ModelSerializer):
@@ -160,7 +162,7 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
-        return CommentRecursiveSerializer(comments, many=True).data
+        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.views import APIView
 
-from .serializers import *
+import apis.serializers as apis_serializers
+from apis.models import Killer, Survivor, Item, ItemAddon, Perk
 
 
 # Create your views here.
@@ -17,7 +18,7 @@ class KillerListView(APIView):
         paginator = Paginator(killers, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(KillerListSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(apis_serializers.KillerListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class SurvivorListView(APIView):
@@ -29,7 +30,7 @@ class SurvivorListView(APIView):
         paginator = Paginator(survivors, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(SurvivorListSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(apis_serializers.SurvivorListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class PerkListView(APIView):
@@ -41,7 +42,7 @@ class PerkListView(APIView):
         paginator = Paginator(perks, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(PerkListSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(apis_serializers.PerkListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class ItemListView(APIView):
@@ -53,7 +54,7 @@ class ItemListView(APIView):
         paginator = Paginator(items, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(ItemListSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(apis_serializers.ItemListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class ItemAddonListView(APIView):
@@ -65,7 +66,7 @@ class ItemAddonListView(APIView):
         paginator = Paginator(item_addons, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
-        return Response(ItemAddonListSerializer(page, many=True).data, status=HTTP_200_OK)
+        return Response(apis_serializers.ItemAddonListSerializer(page, many=True).data, status=HTTP_200_OK)
 
 
 class KillerDetailView(APIView):
@@ -74,7 +75,7 @@ class KillerDetailView(APIView):
 
     def get(self, request, killer_id):
         killer = Killer.objects.get(id=killer_id)
-        return Response(KillerDetailSerializer(killer).data, status=HTTP_200_OK)
+        return Response(apis_serializers.KillerDetailSerializer(killer).data, status=HTTP_200_OK)
 
 
 class SurvivorDetailView(APIView):
@@ -83,7 +84,7 @@ class SurvivorDetailView(APIView):
 
     def get(self, request, survivor_id):
         survivor = Survivor.objects.get(id=survivor_id)
-        return Response(SurvivorDetailSerializer(survivor).data, status=HTTP_200_OK)
+        return Response(apis_serializers.SurvivorDetailSerializer(survivor).data, status=HTTP_200_OK)
 
 
 class PerkDetailView(APIView):
@@ -92,7 +93,7 @@ class PerkDetailView(APIView):
 
     def get(self, request, perk_id):
         perk = Perk.objects.get(id=perk_id)
-        return Response(PerkDetailSerializer(perk).data, status=HTTP_200_OK)
+        return Response(apis_serializers.PerkDetailSerializer(perk).data, status=HTTP_200_OK)
 
 
 class ItemDetailView(APIView):
@@ -101,7 +102,7 @@ class ItemDetailView(APIView):
 
     def get(self, request, item_id):
         item = Item.objects.get(id=item_id)
-        return Response(ItemDetailSerializer(item).data, status=HTTP_200_OK)
+        return Response(apis_serializers.ItemDetailSerializer(item).data, status=HTTP_200_OK)
 
 
 class ItemAddonDetailView(APIView):
@@ -110,4 +111,4 @@ class ItemAddonDetailView(APIView):
 
     def get(self, request, addon_id):
         addon = ItemAddon.objects.get(id=addon_id)
-        return Response(ItemAddonDetailSerializer(addon).data, status=HTTP_200_OK)
+        return Response(apis_serializers.ItemAddonDetailSerializer(addon).data, status=HTTP_200_OK)
