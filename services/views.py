@@ -71,6 +71,7 @@ class CommentUpdateAndDeleteView(APIView):
     def put(self, request, pk):
         comment = apis_models.Comment.objects.get(id=pk)
         serializer = services_serializers.CommentRecursiveSerializer(comment, data=request.data)
+        self.check_object_permissions(request, comment)
 
         if serializer.is_valid():
             comment = serializer.save()
@@ -81,7 +82,6 @@ class CommentUpdateAndDeleteView(APIView):
     def delete(self, request, pk):
         # check is_staff option in future
         comment = apis_models.Comment.objects.get(id=pk)
-        if comment.author != request.user:
-            return Response({'author': '본인 또는 관리자만 삭제가 가능합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        self.check_object_permissions(request, comment)
         comment.delete()
         return Response({'success': 'successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
