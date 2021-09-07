@@ -12,17 +12,17 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ("id", "username", "email", "password")
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate(self, data):
         user = User(**data)
-        password = data.get('password')
+        password = data.get("password")
         errors = {}
         try:
             validate_password(password=password, user=user)
         except exceptions.ValidationError as e:
-            errors['password'] = list(e.messages)
+            errors["password"] = list(e.messages)
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -33,7 +33,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     # create method have to return what I want to make
     def create(self, validated_data):
         user = User.objects.create_user(
-            validated_data['username'], validated_data['email'], validated_data['password']
+            validated_data["username"],
+            validated_data["email"],
+            validated_data["password"],
         )
         return user
 
@@ -41,7 +43,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ("id", "username", "email")
 
 
 # CUSTOMIZING JSON RESPONSE SERIALIZER
@@ -49,17 +51,17 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         refresh = self.get_token(self.user)
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
+        data["refresh"] = str(refresh)
+        data["access"] = str(refresh.access_token)
 
         # data['username'] = self.user.username
-        data['user'] = UserSerializer(self.user).data
+        data["user"] = UserSerializer(self.user).data
         return data
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+# class ProfileSerializer(serializers.ModelSerializer):
+#     user = UserSerializer(read_only=True)
 
-    class Meta:
-        model = Profile
-        fields = '__all__'
+#     class Meta:
+#         model = Profile
+#         fields = '__all__'
