@@ -1,7 +1,16 @@
 from rest_framework import serializers
 
 import services.serializers as services_serializers
-from .models import Killer, Survivor, Perk, Photo, Item, ItemAddon, ItemCategory, Category
+from .models import (
+    Killer,
+    Survivor,
+    Perk,
+    Photo,
+    Item,
+    ItemAddon,
+    ItemCategory,
+    Category,
+)
 
 
 class KillerListSerializer(serializers.ModelSerializer):
@@ -9,7 +18,7 @@ class KillerListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Killer
-        fields = '__all__'
+        fields = "__all__"
 
     def get_images(self, obj):
         images = obj.category.photo.all()
@@ -24,7 +33,16 @@ class KillerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Killer
         fields = (
-            'name', 'name_kor', 'speed', 'images', 'terror_radius', 'comments', 'note', 'dt_created', 'dt_modified')
+            "name",
+            "name_kor",
+            "speed",
+            "images",
+            "terror_radius",
+            "comments",
+            "note",
+            "dt_created",
+            "dt_modified",
+        )
 
     def get_images(self, obj):
         image = obj.category.photo.all()
@@ -40,7 +58,7 @@ class SurvivorListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Survivor
-        fields = '__all__'
+        fields = "__all__"
 
     def get_images(self, obj):
         images = obj.category.photo.all()
@@ -53,7 +71,16 @@ class SurvivorDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Survivor
-        fields = ('name', 'name_kor', 'speed', 'note', 'images', 'comments', 'dt_created', 'dt_modified')
+        fields = (
+            "name",
+            "name_kor",
+            "speed",
+            "note",
+            "images",
+            "comments",
+            "dt_created",
+            "dt_modified",
+        )
 
     def get_images(self, obj):
         image = obj.category.photo.all()
@@ -69,7 +96,7 @@ class PerkListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perk
-        fields = '__all__'
+        fields = "__all__"
 
     def get_images(self, obj):
         images = obj.category.photo.all()
@@ -82,7 +109,15 @@ class PerkDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perk
-        fields = ('name', 'name_kor', 'description', 'images', 'comments', 'dt_created', 'dt_modified')
+        fields = (
+            "name",
+            "name_kor",
+            "description",
+            "images",
+            "comments",
+            "dt_created",
+            "dt_modified",
+        )
 
     def get_images(self, obj):
         image = obj.category.photo.all()
@@ -96,7 +131,7 @@ class PerkDetailSerializer(serializers.ModelSerializer):
 class ItemCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemCategory
-        fields = ('name', 'name_kor')
+        fields = ("name", "name_kor")
 
 
 class ItemListSerializer(serializers.ModelSerializer):
@@ -104,7 +139,7 @@ class ItemListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = '__all__'
+        fields = "__all__"
 
     def get_images(self, obj):
         # images = Photo.objects.filter(photo_category__item=obj)
@@ -119,9 +154,17 @@ class ItemDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = (
-            'name', 'name_kor', 'description', 'durability', 'rarity', 'item_category', 'images', 'comments',
-            'dt_created',
-            'dt_modified')
+            "name",
+            "name_kor",
+            "description",
+            "durability",
+            "rarity",
+            "item_category",
+            "images",
+            "comments",
+            "dt_created",
+            "dt_modified",
+        )
 
     def get_images(self, obj):
         image = obj.category.photo.all()
@@ -138,7 +181,15 @@ class ItemAddonListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemAddon
-        fields = ('name', 'name_kor', 'description', 'dt_created', 'dt_modified', 'images', 'item_category')
+        fields = (
+            "name",
+            "name_kor",
+            "description",
+            "dt_created",
+            "dt_modified",
+            "images",
+            "item_category",
+        )
 
     def get_images(self, obj):
         images = obj.category.photo.all()
@@ -153,8 +204,15 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemAddon
         fields = (
-            'name', 'name_kor', 'description', 'images', 'comments', 'item_category',
-            'dt_created', 'dt_modified')
+            "name",
+            "name_kor",
+            "description",
+            "images",
+            "comments",
+            "item_category",
+            "dt_created",
+            "dt_modified",
+        )
 
     def get_images(self, obj):
         image = obj.category.photo.all()
@@ -168,10 +226,10 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ('image', 'dt_created', 'dt_modified')
+        fields = ("image", "dt_created", "dt_modified")

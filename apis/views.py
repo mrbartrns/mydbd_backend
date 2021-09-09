@@ -1,114 +1,138 @@
-from django.core.paginator import Paginator
+from django.core.paginator import Page, Paginator
+from rest_framework import serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from rest_framework.status import *
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
+
 
 import apis.serializers as apis_serializers
 from apis.models import Killer, Survivor, Item, ItemAddon, Perk
 
 
+class APIPagination(PageNumberPagination):
+    page_size_query_param = "page"
+    page_size = 10
+
+
 # Create your views here.
-class KillerListView(APIView):
+class KillerListView(APIView, APIPagination):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.KillerListSerializer
 
     def get(self, request):
         killers = Killer.objects.all()
-        paginator = Paginator(killers, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        return Response(apis_serializers.KillerListSerializer(page, many=True).data, status=HTTP_200_OK)
+        page = self.paginate_queryset(killers, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
+        )
+        return response
 
 
-class SurvivorListView(APIView):
+class SurvivorListView(APIView, APIPagination):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.SurvivorListSerializer
 
     def get(self, request):
         survivors = Survivor.objects.all()
-        paginator = Paginator(survivors, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        return Response(apis_serializers.SurvivorListSerializer(page, many=True).data, status=HTTP_200_OK)
+        page = self.paginate_queryset(survivors, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
+        )
+        return response
 
 
-class PerkListView(APIView):
+class PerkListView(APIView, APIPagination):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.PerkListSerializer
 
     def get(self, request):
         perks = Perk.objects.all()
-        paginator = Paginator(perks, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        return Response(apis_serializers.PerkListSerializer(page, many=True).data, status=HTTP_200_OK)
+        page = self.paginate_queryset(perks, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
+        )
+        return response
 
 
-class ItemListView(APIView):
+class ItemListView(APIView, APIPagination):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.ItemListSerializer
 
     def get(self, request):
         items = Item.objects.all()
-        paginator = Paginator(items, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        return Response(apis_serializers.ItemListSerializer(page, many=True).data, status=HTTP_200_OK)
+        page = self.paginate_queryset(items, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
+        )
+        return response
 
 
-class ItemAddonListView(APIView):
+class ItemAddonListView(APIView, APIPagination):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.ItemAddonListSerializer
 
     def get(self, request):
         item_addons = ItemAddon.objects.all()
-        paginator = Paginator(item_addons, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        return Response(apis_serializers.ItemAddonListSerializer(page, many=True).data, status=HTTP_200_OK)
+        page = self.paginate_queryset(item_addons, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
+        )
+        return response
 
 
 class KillerDetailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.KillerDetailSerializer
 
     def get(self, request, killer_id):
         killer = Killer.objects.get(id=killer_id)
-        return Response(apis_serializers.KillerDetailSerializer(killer).data, status=HTTP_200_OK)
+        return Response(self.serializer_class(killer).data, status=HTTP_200_OK)
 
 
 class SurvivorDetailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.SurvivorDetailSerializer
 
     def get(self, request, survivor_id):
         survivor = Survivor.objects.get(id=survivor_id)
-        return Response(apis_serializers.SurvivorDetailSerializer(survivor).data, status=HTTP_200_OK)
+        return Response(self.serializer_class(survivor).data, status=HTTP_200_OK)
 
 
 class PerkDetailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.PerkDetailSerializer
 
     def get(self, request, perk_id):
         perk = Perk.objects.get(id=perk_id)
-        return Response(apis_serializers.PerkDetailSerializer(perk).data, status=HTTP_200_OK)
+        return Response(self.serializer_class(perk).data, status=HTTP_200_OK)
 
 
 class ItemDetailView(APIView):
     permission_classes = []
     authentication_classes = []
+    serializer_class = apis_serializers.ItemAddonListSerializer
 
     def get(self, request, item_id):
         item = Item.objects.get(id=item_id)
-        return Response(apis_serializers.ItemDetailSerializer(item).data, status=HTTP_200_OK)
+        return Response(self.serializer_class(item).data, status=HTTP_200_OK)
 
 
 class ItemAddonDetailView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = apis_serializers.ItemAddonDetailSerializer
 
     def get(self, request, addon_id):
         addon = ItemAddon.objects.get(id=addon_id)
-        return Response(apis_serializers.ItemAddonDetailSerializer(addon).data, status=HTTP_200_OK)
+        return Response(self.serializer_class(addon).data, status=HTTP_200_OK)
