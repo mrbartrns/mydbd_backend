@@ -1,8 +1,6 @@
-from django.core.paginator import Page, Paginator
 from rest_framework import serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
 from rest_framework.status import *
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
@@ -13,7 +11,7 @@ from apis.models import Killer, Survivor, Item, ItemAddon, Perk
 
 
 class APIPagination(PageNumberPagination):
-    page_size_query_param = "page"
+    page_query_param = "page"
     page_size = 10
 
 
@@ -26,6 +24,7 @@ class KillerListView(APIView, APIPagination):
     def get(self, request):
         killers = Killer.objects.all()
         page = self.paginate_queryset(killers, request, view=self)
+        print(page)
         response = self.get_paginated_response(
             self.serializer_class(page, many=True).data
         )
