@@ -24,7 +24,7 @@ class KillerListView(APIView, APIPagination):
     def get(self, request):
         killers = Killer.objects.all()
         page = self.paginate_queryset(killers, request, view=self)
-        print(page)
+        # print(page)
         response = self.get_paginated_response(
             self.serializer_class(page, many=True).data
         )

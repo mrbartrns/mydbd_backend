@@ -1,26 +1,38 @@
-from typing import Union
-
 from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
 import apis.models as apis_models
+import services.models as services_models
 import services.serializers as services_serializers
 from backend.permissions import *
 
 
+# Comment Pagination
+class CommentPagination(PageNumberPagination):
+    page_query_param = "page"
+    page_size = 10
+
+
 # Create your views here.
-class CommentRecursiveView(APIView):
+class CommentRecursiveView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated]
+    serializer_class = services_serializers.CommentRecursiveSerializer
 
     def get(self, request):
-        comments = apis_models.Comment.objets.filter(depth=0)
-        return Response(
-            services_serializers.CommentRecursiveSerializer(comments, many=True).data,
-            status=status.HTTP_200_OK,
+        comments = services_models.Comment.objects.filter(depth=0)
+        page = self.paginate_queryset(comments, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
         )
+        # return Response(
+        #     services_serializers.CommentRecursiveSerializer(comments, many=True).data,
+        #     status=status.HTTP_200_OK,
+        # )
+        return response
 
 
 class CommentListAndCreateView(APIView):
@@ -49,12 +61,17 @@ class CommentListAndCreateView(APIView):
                 id=obj_id
             ).category.comments.filter(depth=0)
 
+        # if comments:
+        #     paginator = Paginator(comments, 10)
+        #     page_number = request.GET.get("page", 1)
+        #     page = paginator.get_page(page_number)
+        #     return Response(
+        #         services_serializers.CommentRecursiveSerializer(page, many=True).data,
+        #         status=status.HTTP_200_OK,
+        #     )
         if comments:
-            paginator = Paginator(comments, 10)
-            page_number = request.GET.get("page", 1)
-            page = paginator.get_page(page_number)
             return Response(
-                services_serializers.CommentRecursiveSerializer(page, many=True).data,
+                services_serializers.CommentRecursiveSerializer(many=True).data,
                 status=status.HTTP_200_OK,
             )
         return Response({"error": "잘못된 접근입니다."}, status=status.HTTP_400_BAD_REQUEST)
