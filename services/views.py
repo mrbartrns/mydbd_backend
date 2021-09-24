@@ -13,6 +13,7 @@ from backend.permissions import *
 
 # Comment Pagination
 class CommentPagination(PageNumberPagination):
+    # TODO: change page_query_param page -> cp
     page_query_param = "page"
     page_size = 10
 
@@ -35,11 +36,37 @@ class CommentRecursiveView(APIView, CommentPagination):
         return response
 
 
-class CommentListAndCreateView(APIView):
+class CommentDepthView(APIView, CommentPagination):
+    permission_classes = [IsAuthenticated | ReadOnly]
+    serializer_classes = services_serializers.CommentSerializer
+
+    def get(self, request, category_name, obj_id):
+        comments = None
+        depth = request.GET.get("depth", 0)
+        parent = request.GET.get("parent", None)
+        # TODO: align order request
+        order = request.GET.get("order", "")
+        if category_name == "killer":
+            comments = apis_models.Killer.objects.get(
+                id=obj_id
+            ).category.comments.filter(depth=depth, parent=parent)
+        if comments:
+            page = self.paginate_queryset(comments, request, view=self)
+            print(page)
+            response = self.get_paginated_response(
+                self.serializer_classes(page, many=True).data
+            )
+            return response
+        return Response({"detail": "bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentListAndCreateView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated | ReadOnly]
 
     def get(self, request, category_name, obj_id):
         comments = None
+        depth = request.GET.get("depth", 0)
+        parent = request.GET.get("parent", None)
         if category_name == "killer":
             comments = apis_models.Killer.objects.get(
                 id=obj_id
