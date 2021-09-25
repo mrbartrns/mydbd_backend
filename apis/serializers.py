@@ -39,6 +39,7 @@ class KillerDetailSerializer(serializers.ModelSerializer):
             "images",
             "terror_radius",
             "note",
+            "comments",
             "dt_created",
             "dt_modified",
         )
@@ -77,6 +78,7 @@ class SurvivorDetailSerializer(serializers.ModelSerializer):
             "speed",
             "note",
             "images",
+            "comments",
             "dt_created",
             "dt_modified",
         )
@@ -113,6 +115,7 @@ class PerkDetailSerializer(serializers.ModelSerializer):
             "name_kor",
             "description",
             "images",
+            "comments",
             "dt_created",
             "dt_modified",
         )
