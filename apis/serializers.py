@@ -51,7 +51,7 @@ class KillerDetailSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         comments = obj.category.comments.filter(depth=0)
         # return services_serializers.CommentSerializer(comments, many=True)
-        return services_serializers.CommentRecursiveSerializer(comments, many=True)
+        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
 
 
 class SurvivorListSerializer(serializers.ModelSerializer):

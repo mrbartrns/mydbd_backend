@@ -16,7 +16,9 @@ class Comment(models.Model):
         verbose_name="parent-comment",
         related_name="children",
     )
+    group = models.PositiveIntegerField(default=1)
     depth = models.PositiveIntegerField(default=0)
+    seq = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,

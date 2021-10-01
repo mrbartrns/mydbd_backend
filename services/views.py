@@ -36,7 +36,7 @@ class CommentRecursiveView(APIView, CommentPagination):
         return response
 
 
-class CommentDepthView(APIView, CommentPagination):
+class CommentsListView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated | ReadOnly]
     serializer_classes = services_serializers.CommentSerializer
 
@@ -64,44 +64,27 @@ class CommentListAndCreateView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated | ReadOnly]
 
     def get(self, request, category_name, obj_id):
+        serializer = services_serializers.CommentSerializer
         comments = None
-        depth = request.GET.get("depth", 0)
-        parent = request.GET.get("parent", None)
         if category_name == "killer":
-            comments = apis_models.Killer.objects.get(
-                id=obj_id
-            ).category.comments.filter(depth=0)
+            comments = apis_models.Killer.objects.get(id=obj_id).category.comments.all()
         elif category_name == "survivor":
             comments = apis_models.Survivor.objects.get(
                 id=obj_id
-            ).category.comments.filter(depth=0)
+            ).category.comments.all()
         elif category_name == "perk":
-            comments = apis_models.Perk.objects.get(id=obj_id).category.comments.filter(
-                depth=0
-            )
+            comments = apis_models.Perk.objects.get(id=obj_id).category.comments.all()
         elif category_name == "item":
-            comments = apis_models.Item.objects.get(id=obj_id).category.comments.filter(
-                depth=0
-            )
+            comments = apis_models.Item.objects.get(id=obj_id).category.comments.all()
         elif category_name == "addon":
             comments = apis_models.ItemAddon.objects.get(
                 id=obj_id
-            ).category.comments.filter(depth=0)
-
-        # if comments:
-        #     paginator = Paginator(comments, 10)
-        #     page_number = request.GET.get("page", 1)
-        #     page = paginator.get_page(page_number)
-        #     return Response(
-        #         services_serializers.CommentRecursiveSerializer(page, many=True).data,
-        #         status=status.HTTP_200_OK,
-        #     )
-        if comments:
-            return Response(
-                services_serializers.CommentRecursiveSerializer(many=True).data,
-                status=status.HTTP_200_OK,
-            )
-        return Response({"error": "잘못된 접근입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            ).category.comments.all()
+        if comments is not None:
+            comments = comments.order_by("group", "seq")
+            page = self.paginate_queryset(comments, request, view=self)
+            response = self.get_paginated_response(serializer(page, many=True).data)
+            return response
 
     def post(self, request, category_name, obj_id):
         serializer = services_serializers.CommentPostSerializer(data=request.data)
@@ -119,7 +102,7 @@ class CommentListAndCreateView(APIView, CommentPagination):
         if category and serializer.is_valid():
             comment = serializer.save(author=request.user, category=category)
             return Response(
-                services_serializers.CommentRecursiveSerializer(comment).data,
+                services_serializers.CommentSerializer(comment).data,
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
