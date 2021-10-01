@@ -1,4 +1,6 @@
+from collections import defaultdict
 from django.core.paginator import Paginator
+from django.db.models import Case, When
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -81,7 +83,10 @@ class CommentListAndCreateView(APIView, CommentPagination):
                 id=obj_id
             ).category.comments.all()
         if comments is not None:
-            comments = comments.order_by("group", "seq")
+            # comments = comments.order_by("group", "seq")
+            comments = comments.annotate(
+                sort_order_true=Case(When(parent=not None, then="parent"), default="id")
+            ).order_by("sort_order_true")
             page = self.paginate_queryset(comments, request, view=self)
             response = self.get_paginated_response(serializer(page, many=True).data)
             return response
@@ -100,6 +105,12 @@ class CommentListAndCreateView(APIView, CommentPagination):
             category = apis_models.ItemAddon.objects.get(id=obj_id).category
 
         if category and serializer.is_valid():
+            data = serializer.validated_data
+            parent = data.get("parent", None)
+            if parent and parent.parent:
+                return Response(
+                    {"detail": "bad request"}, status=status.HTTP_403_FORBIDDEN
+                )
             comment = serializer.save(author=request.user, category=category)
             return Response(
                 services_serializers.CommentSerializer(comment).data,
