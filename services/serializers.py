@@ -31,14 +31,18 @@ class CommentRecursiveSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    # children_count = serializers.SerializerMethodField()
+    children_count = serializers.SerializerMethodField()
+    is_modified = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = "__all__"
 
-    # def get_children_count(self, obj):
-    #     return obj.children.count()
+    def get_children_count(self, obj):
+        return obj.children.count()
+
+    def get_is_modified(self, obj):
+        return obj.dt_created == obj.dt_modified
 
 
 # serializer.Serializer를 이용하여 사용하지 않아도 ModelSerializer를 불러와 원하는 field만 입력받도록 하면 된다.

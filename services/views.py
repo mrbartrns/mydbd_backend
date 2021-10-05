@@ -21,52 +21,17 @@ class CommentPagination(PageNumberPagination):
 
 
 # Create your views here.
-class CommentRecursiveView(APIView, CommentPagination):
-    permission_classes = [IsAuthenticated]
-    serializer_class = services_serializers.CommentRecursiveSerializer
-
-    def get(self, request):
-        comments = services_models.Comment.objects.filter(depth=0)
-        page = self.paginate_queryset(comments, request, view=self)
-        response = self.get_paginated_response(
-            self.serializer_class(page, many=True).data
-        )
-        # return Response(
-        #     services_serializers.CommentRecursiveSerializer(comments, many=True).data,
-        #     status=status.HTTP_200_OK,
-        # )
-        return response
-
-
-class CommentsListView(APIView, CommentPagination):
-    permission_classes = [IsAuthenticated | ReadOnly]
-    serializer_classes = services_serializers.CommentSerializer
-
-    def get(self, request, category_name, obj_id):
-        comments = None
-        depth = request.GET.get("depth", 0)
-        parent = request.GET.get("parent", None)
-        # TODO: align order request
-        order = request.GET.get("order", "")
-        if category_name == "killer":
-            comments = apis_models.Killer.objects.get(
-                id=obj_id
-            ).category.comments.filter(depth=depth, parent=parent)
-        if comments:
-            page = self.paginate_queryset(comments, request, view=self)
-            print(page)
-            response = self.get_paginated_response(
-                self.serializer_classes(page, many=True).data
-            )
-            return response
-        return Response({"detail": "bad request"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CommentListAndCreateView(APIView, CommentPagination):
+class CommentListByQueryAndCreateView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated | ReadOnly]
 
     def get(self, request, category_name, obj_id):
+        """
+        query_string에 따라 depth를 나누어주는 view
+        """
         serializer = services_serializers.CommentSerializer
+        parent = request.GET.get("parent", "")
+        # TODO: 추후에 like를 모델에 추가한다. 현재는 등록순으로 추가
+        sortby = request.GET.get("sortby", "id")
         comments = None
         if category_name == "killer":
             comments = apis_models.Killer.objects.get(id=obj_id).category.comments.all()
@@ -82,8 +47,44 @@ class CommentListAndCreateView(APIView, CommentPagination):
             comments = apis_models.ItemAddon.objects.get(
                 id=obj_id
             ).category.comments.all()
+
+        if parent != "":
+            comments = comments.filter(parent=parent)
+        else:
+            comments = comments.filter(depth=0)
+
+        if sortby == "id":
+            comments = comments.order_by("id")
+        elif sortby == "recent":
+            comments = comments.order_by("-id")
+        elif sortby == "like":
+            pass
+        page = self.paginate_queryset(comments, request, view=self)
+        response = self.get_paginated_response(serializer(page, many=True).data)
+        return response
+
+
+class CommentListAndCreateView(APIView, CommentPagination):
+    permission_classes = [IsAuthenticated | ReadOnly]
+
+    def get(self, request, category_name, obj_id):
+        serializer = services_serializers.CommentSerializer
+        comments = None
+        if category_name == "killer":
+            comments = apis_models.Killer.objects.get(id=obj_id).category.comments
+        elif category_name == "survivor":
+            comments = apis_models.Survivor.objects.get(
+                id=obj_id
+            ).category.comments.all()
+        elif category_name == "perk":
+            comments = apis_models.Perk.objects.get(id=obj_id).category.comments
+        elif category_name == "item":
+            comments = apis_models.Item.objects.get(id=obj_id).category.comments.all()
+        elif category_name == "addon":
+            comments = apis_models.ItemAddon.objects.get(
+                id=obj_id
+            ).category.comments.all()
         if comments is not None:
-            # comments = comments.order_by("group", "seq")
             comments = comments.annotate(
                 sort_order_true=Case(When(parent=not None, then="parent"), default="id")
             ).order_by("sort_order_true")
