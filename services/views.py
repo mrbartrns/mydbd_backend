@@ -63,6 +63,33 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
         response = self.get_paginated_response(serializer(page, many=True).data)
         return response
 
+    def post(self, request, category_name, obj_id):
+        serializer = services_serializers.CommentPostSerializer(data=request.data)
+        category = None
+
+        if category_name == "killer":
+            category = apis_models.Killer.objects.get(id=obj_id).category
+        elif category_name == "survivor":
+            category = apis_models.Survivor.objects.get(id=obj_id).category
+        elif category_name == "item":
+            category = apis_models.Item.objects.get(id=obj_id).category
+        elif category_name == "addon":
+            category = apis_models.ItemAddon.objects.get(id=obj_id).category
+
+        if category and serializer.is_valid():
+            data = serializer.validated_data
+            parent = data.get("parent", None)
+            if parent and parent.parent:
+                return Response(
+                    {"detail": "bad request"}, status=status.HTTP_403_FORBIDDEN
+                )
+            comment = serializer.save(author=request.user, category=category)
+            return Response(
+                services_serializers.CommentSerializer(comment).data,
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CommentListAndCreateView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated | ReadOnly]
