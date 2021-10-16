@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -48,6 +49,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 # CUSTOMIZING JSON RESPONSE SERIALIZER
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    default_error_messages = {
+        "no_active_account": _("No active account found with the given credentials")
+    }
+
     def validate(self, attrs):
         data = super().validate(attrs)
         refresh = self.get_token(self.user)
