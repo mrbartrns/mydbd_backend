@@ -101,7 +101,7 @@ class CommentUpdateAndDeleteView(APIView):
         if serializer.is_valid():
             comment = serializer.save()
             return Response(
-                services_serializers.CommentRecursiveSerializer(comment).data,
+                services_serializers.CommentSerializer(comment).data,
                 status=status.HTTP_202_ACCEPTED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
