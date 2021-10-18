@@ -9,9 +9,9 @@ urlpatterns = [
         "list/<str:category_name>/<int:obj_id>/comments",
         CommentListByQueryAndCreateView.as_view(),
     ),
-    path(
-        "comments/list/<str:category_name>/<int:obj_id>",
-        CommentListAndCreateView.as_view(),
-    ),
-    path("comment/update/<int:pk>", CommentUpdateAndDeleteView.as_view()),
+    # path(
+    #     "comments/list/<str:category_name>/<int:obj_id>",
+    #     CommentListAndCreateView.as_view(),
+    # ),
+    path("comment/<int:pk>", CommentUpdateAndDeleteView.as_view()),
 ]
