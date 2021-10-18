@@ -54,3 +54,5 @@ class CommentPostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.content = validated_data.get("content", instance.content)
         instance.parent = validated_data.get("parent", instance.parent)
+        instance.save()
+        return instance

@@ -27,9 +27,9 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
         query_string에 따라 depth를 나누어주는 view
         """
         serializer = services_serializers.CommentSerializer
-        parent = request.GET.get("parent", "")
+        parent = request.GET.get("parent", None)
         # TODO: 추후에 like를 모델에 추가한다. 현재는 등록순으로 추가
-        sortby = request.GET.get("sortby", "id")
+        sortby = request.GET.get("sortby", "recent")
         comments = None
         if category_name == "killer":
             comments = apis_models.Killer.objects.get(id=obj_id).category.comments.all()
@@ -46,7 +46,7 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
                 id=obj_id
             ).category.comments.all()
 
-        if parent != "":
+        if parent:
             comments = comments.filter(parent=parent)
         else:
             comments = comments.filter(depth=0)
@@ -89,70 +89,13 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CommentListAndCreateView(APIView, CommentPagination):
-    permission_classes = [IsAuthenticated | ReadOnly]
-
-    def get(self, request, category_name, obj_id):
-        serializer = services_serializers.CommentSerializer
-        comments = None
-        if category_name == "killer":
-            comments = apis_models.Killer.objects.get(id=obj_id).category.comments
-        elif category_name == "survivor":
-            comments = apis_models.Survivor.objects.get(
-                id=obj_id
-            ).category.comments.all()
-        elif category_name == "perk":
-            comments = apis_models.Perk.objects.get(id=obj_id).category.comments
-        elif category_name == "item":
-            comments = apis_models.Item.objects.get(id=obj_id).category.comments.all()
-        elif category_name == "addon":
-            comments = apis_models.ItemAddon.objects.get(
-                id=obj_id
-            ).category.comments.all()
-        if comments is not None:
-            comments = comments.annotate(
-                sort_order_true=Case(When(parent=not None, then="parent"), default="id")
-            ).order_by("sort_order_true")
-            page = self.paginate_queryset(comments, request, view=self)
-            response = self.get_paginated_response(serializer(page, many=True).data)
-            return response
-
-    def post(self, request, category_name, obj_id):
-        serializer = services_serializers.CommentPostSerializer(data=request.data)
-        category = None
-
-        if category_name == "killer":
-            category = apis_models.Killer.objects.get(id=obj_id).category
-        elif category_name == "survivor":
-            category = apis_models.Survivor.objects.get(id=obj_id).category
-        elif category_name == "item":
-            category = apis_models.Item.objects.get(id=obj_id).category
-        elif category_name == "addon":
-            category = apis_models.ItemAddon.objects.get(id=obj_id).category
-
-        if category and serializer.is_valid():
-            data = serializer.validated_data
-            parent = data.get("parent", None)
-            if parent and parent.parent:
-                return Response(
-                    {"detail": "bad request"}, status=status.HTTP_403_FORBIDDEN
-                )
-            comment = serializer.save(author=request.user, category=category)
-            return Response(
-                services_serializers.CommentSerializer(comment).data,
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CommentUpdateAndDeleteView(APIView):
     permission_classes = [IsOwnerOrStaff]
+    serializer_class = services_serializers.CommentPostSerializer
 
     def put(self, request, pk):
-        comment = apis_models.Comment.objects.get(id=pk)
-        serializer = services_serializers.CommentRecursiveSerializer(
-            comment, data=request.data
-        )
+        comment = services_models.Comment.objects.get(id=pk)
+        serializer = self.serializer_class(comment, data=request.data)
         self.check_object_permissions(request, comment)
 
         if serializer.is_valid():
@@ -164,10 +107,9 @@ class CommentUpdateAndDeleteView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        # check is_staff option in future
-        comment = apis_models.Comment.objects.get(id=pk)
+        comment = services_models.Comment.objects.get(id=pk)
         self.check_object_permissions(request, comment)
         comment.delete()
         return Response(
-            {"success": "successfully deleted."}, status=status.HTTP_204_NO_CONTENT
+            {"success": "successfully deleted."}, status=status.HTTP_202_ACCEPTED
         )
