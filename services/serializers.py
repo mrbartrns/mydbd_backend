@@ -33,6 +33,7 @@ class CommentRecursiveSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     children_count = serializers.SerializerMethodField()
     is_modified = serializers.SerializerMethodField()
+    author = accounts_serializers.UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
