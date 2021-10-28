@@ -1,5 +1,5 @@
 from django.db.models import Case, When
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -93,6 +93,12 @@ class CommentUpdateAndDeleteView(APIView):
     permission_classes = [IsOwnerOrStaff]
     serializer_class = services_serializers.CommentPostSerializer
 
+    # for test
+    def get(self, request, pk):
+        comment = services_models.Comment.objects.get(id=pk)
+        serializer = services_serializers.CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def put(self, request, pk):
         comment = services_models.Comment.objects.get(id=pk)
         serializer = self.serializer_class(comment, data=request.data)
@@ -113,3 +119,41 @@ class CommentUpdateAndDeleteView(APIView):
         return Response(
             {"success": "successfully deleted."}, status=status.HTTP_202_ACCEPTED
         )
+
+
+# TODO: have to modifiy detail
+class CommentLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = services_serializers.LikePostSerializer
+
+    def get(self, request, pk):
+        like = services_models.Like.objects.get(user=request.user, comment=pk)
+        if services_serializers.Like.filter(id=like).exists():
+
+            return Response(
+                services_serializers.LikeSerializer(like).data,
+                status=status.HTTP_200_OK,
+            )
+        return Response({"detail": "error"})
+
+    # TODO: separate post and delete method
+    # TODO: if object exsists: just change state like or dislike=True, dont remove objects
+    def post(self, request, pk):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            comment = services_models.Comment.objects.get(id=pk)
+            likes = services_models.Like.objects.filter(
+                comment=comment, user=request.user
+            )
+            if likes.exists():
+                like = likes[0]
+                like.delete()
+                return Response(
+                    {"detail": "successfully deleted."}, status=status.HTTP_202_ACCEPTED
+                )
+            like = serializer.save(comment=comment, user=request.user)
+            return Response(
+                services_serializers.LikeSerializer(like).data,
+                status=status.HTTP_202_ACCEPTED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

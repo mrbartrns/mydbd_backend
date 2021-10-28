@@ -2,6 +2,7 @@
 All List of game props do in api.serializer
 """
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 import accounts.serializers as accounts_serializers
 from .models import *
@@ -34,6 +35,10 @@ class CommentSerializer(serializers.ModelSerializer):
     children_count = serializers.SerializerMethodField()
     is_modified = serializers.SerializerMethodField()
     author = accounts_serializers.UserSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -44,6 +49,32 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_is_modified(self, obj):
         return obj.dt_created == obj.dt_modified
+
+    def get_like_count(self, obj):
+        return obj.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
+
+    def get_user_disliked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
 
 
 # serializer.Serializer를 이용하여 사용하지 않아도 ModelSerializer를 불러와 원하는 field만 입력받도록 하면 된다.
@@ -58,3 +89,23 @@ class CommentPostSerializer(serializers.ModelSerializer):
         # instance.parent = validated_data.get("parent", instance.parent)
         instance.save()
         return instance
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = "__all__"
+        extra_fields = {"like": {"read_only": True}, "dislike": {"read_only": True}}
+
+
+class LikePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ("like", "dislike")
+
+    def validate(self, attrs):
+        if attrs["like"] and attrs["dislike"]:
+            raise ValidationError(
+                {"detail": "both like and dislike field must not be all True."}
+            )
+        return attrs
