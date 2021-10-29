@@ -107,16 +107,3 @@ class LikeSerializer(serializers.ModelSerializer):
                 {"detail": "both like and dislike field must not be all True."}
             )
         return super().validate(attrs)
-
-
-# class LikePostSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Like
-#         fields = ("like", "dislike")
-
-#     def validate(self, attrs):
-#         if attrs["like"] and attrs["dislike"]:
-#             raise ValidationError(
-#                 {"detail": "both like and dislike field must not be all True."}
-#             )
-#         return attrs
