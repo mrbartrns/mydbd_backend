@@ -1,5 +1,6 @@
 from django.db.models import Case, When
 from rest_framework import serializers, status
+from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -123,7 +124,6 @@ class CommentUpdateAndDeleteView(APIView):
 
 class CommentLikeView(APIView):
     permission_classes = [IsAuthenticated]
-    # serializer_class = services_serializers.LikePostSerializer
     serializer_class = services_serializers.LikeSerializer
 
     def get(self, request, pk):
@@ -131,7 +131,6 @@ class CommentLikeView(APIView):
         if likes.exists():
             like = likes[0]
             return Response(
-                # services_serializers.LikeSerializer(like).data,
                 self.serializer_class(like).data,
                 status=status.HTTP_200_OK,
             )
@@ -165,3 +164,11 @@ class CommentLikeView(APIView):
                 status=status.HTTP_202_ACCEPTED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DetailLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = services_serializers.LikeSerializer
+
+    def get(self, request, category_name, obj_id):
+        pass

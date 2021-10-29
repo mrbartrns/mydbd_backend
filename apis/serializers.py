@@ -28,29 +28,48 @@ class KillerListSerializer(serializers.ModelSerializer):
 # TODO: paginate nested serializers
 class KillerDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    # comments = serializers.SerializerMethodField()
+    is_modified = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
 
     class Meta:
         model = Killer
-        fields = (
-            "name",
-            "name_kor",
-            "speed",
-            "images",
-            "terror_radius",
-            "note",
-            "dt_created",
-            "dt_modified",
-        )
+        fields = "__all__"
 
     def get_images(self, obj):
         image = obj.category.photo.all()
         return ImageSerializer(image, many=True).data
 
-    # def get_comments(self, obj):
-    #     comments = obj.category.comments.filter(depth=0)
-    #     # return services_serializers.CommentSerializer(comments, many=True)
-    #     return services_serializers.CommentRecursiveSerializer(comments, many=True).data
+    def get_is_modified(self, obj):
+        return obj.dt_created == obj.dt_modified
+
+    def get_like_count(self, obj):
+        return obj.category.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.category.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
+
+    def get_user_disliked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
 
 
 class SurvivorListSerializer(serializers.ModelSerializer):
@@ -67,28 +86,48 @@ class SurvivorListSerializer(serializers.ModelSerializer):
 
 class SurvivorDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField()
+    is_modified = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
 
     class Meta:
         model = Survivor
-        fields = (
-            "name",
-            "name_kor",
-            "speed",
-            "note",
-            "images",
-            "comments",
-            "dt_created",
-            "dt_modified",
-        )
+        fields = "__all__"
 
     def get_images(self, obj):
         image = obj.category.photo.all()
         return ImageSerializer(image, many=True).data
 
-    def get_comments(self, obj):
-        comments = obj.category.comments.filter(depth=0)
-        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
+    def get_is_modified(self, obj):
+        return obj.dt_created == obj.dt_modified
+
+    def get_like_count(self, obj):
+        return obj.category.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.category.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
+
+    def get_user_disliked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
 
 
 class PerkListSerializer(serializers.ModelSerializer):
@@ -105,27 +144,48 @@ class PerkListSerializer(serializers.ModelSerializer):
 
 class PerkDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    # comments = serializers.SerializerMethodField()
+    is_modified = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
 
     class Meta:
         model = Perk
-        fields = (
-            "name",
-            "name_kor",
-            "description",
-            "images",
-            "comments",
-            "dt_created",
-            "dt_modified",
-        )
+        fields = "__all__"
 
     def get_images(self, obj):
         image = obj.category.photo.all()
         return ImageSerializer(image, many=True).data
 
-    def get_comments(self, obj):
-        comments = obj.category.comments.filter(depth=0)
-        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
+    def get_is_modified(self, obj):
+        return obj.dt_created == obj.dt_modified
+
+    def get_like_count(self, obj):
+        return obj.category.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.category.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
+
+    def get_user_disliked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
 
 
 class ItemCategorySerializer(serializers.ModelSerializer):
@@ -149,30 +209,48 @@ class ItemListSerializer(serializers.ModelSerializer):
 
 class ItemDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField()
+    is_modified = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
 
     class Meta:
         model = Item
-        fields = (
-            "name",
-            "name_kor",
-            "description",
-            "durability",
-            "rarity",
-            "item_category",
-            "images",
-            "comments",
-            "dt_created",
-            "dt_modified",
-        )
+        fields = "__all__"
 
     def get_images(self, obj):
         image = obj.category.photo.all()
         return ImageSerializer(image, many=True).data
 
-    def get_comments(self, obj):
-        comments = obj.category.comments.filter(depth=0)
-        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
+    def get_is_modified(self, obj):
+        return obj.dt_created == obj.dt_modified
+
+    def get_like_count(self, obj):
+        return obj.category.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.category.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
+
+    def get_user_disliked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
 
 
 class ItemAddonListSerializer(serializers.ModelSerializer):
@@ -181,15 +259,7 @@ class ItemAddonListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemAddon
-        fields = (
-            "name",
-            "name_kor",
-            "description",
-            "dt_created",
-            "dt_modified",
-            "images",
-            "item_category",
-        )
+        fields = "__all__"
 
     def get_images(self, obj):
         images = obj.category.photo.all()
@@ -198,29 +268,49 @@ class ItemAddonListSerializer(serializers.ModelSerializer):
 
 class ItemAddonDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField()
     item_category = ItemCategorySerializer(read_only=True)
+    is_modified = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemAddon
-        fields = (
-            "name",
-            "name_kor",
-            "description",
-            "images",
-            "comments",
-            "item_category",
-            "dt_created",
-            "dt_modified",
-        )
+        fields = "__all__"
 
     def get_images(self, obj):
         image = obj.category.photo.all()
         return ImageSerializer(image, many=True).data
 
-    def get_comments(self, obj):
-        comments = obj.category.comments.filter(depth=0)
-        return services_serializers.CommentRecursiveSerializer(comments, many=True).data
+    def get_is_modified(self, obj):
+        return obj.dt_created == obj.dt_modified
+
+    def get_like_count(self, obj):
+        return obj.category.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.category.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
+
+    def get_user_disliked(self, obj):
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        query = obj.category.likes.filter(user=user, like=True)
+        if query.exists():
+            return True
+        return False
 
 
 class CategorySerializer(serializers.ModelSerializer):
