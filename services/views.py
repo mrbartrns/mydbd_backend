@@ -124,14 +124,16 @@ class CommentUpdateAndDeleteView(APIView):
 # TODO: have to modifiy detail
 class CommentLikeView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = services_serializers.LikePostSerializer
+    # serializer_class = services_serializers.LikePostSerializer
+    serializer_class = services_serializers.LikeSerializer
 
     def get(self, request, pk):
         like = services_models.Like.objects.get(user=request.user, comment=pk)
         if services_serializers.Like.filter(id=like).exists():
 
             return Response(
-                services_serializers.LikeSerializer(like).data,
+                # services_serializers.LikeSerializer(like).data,
+                self.serializer_class(like).data,
                 status=status.HTTP_200_OK,
             )
         return Response({"detail": "error"})
@@ -153,7 +155,8 @@ class CommentLikeView(APIView):
                 )
             like = serializer.save(comment=comment, user=request.user)
             return Response(
-                services_serializers.LikeSerializer(like).data,
+                # services_serializers.LikeSerializer(like).data,
+                self.serializer_class(like).data,
                 status=status.HTTP_202_ACCEPTED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -95,17 +95,28 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = "__all__"
-        extra_fields = {"like": {"read_only": True}, "dislike": {"read_only": True}}
-
-
-class LikePostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Like
-        fields = ("like", "dislike")
+        extra_kwargs = {
+            "category": {"read_only": True},
+            "comment": {"read_only": True},
+            "user": {"read_only": True},
+        }
 
     def validate(self, attrs):
         if attrs["like"] and attrs["dislike"]:
             raise ValidationError(
                 {"detail": "both like and dislike field must not be all True."}
             )
-        return attrs
+        return super().validate(attrs)
+
+
+# class LikePostSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Like
+#         fields = ("like", "dislike")
+
+#     def validate(self, attrs):
+#         if attrs["like"] and attrs["dislike"]:
+#             raise ValidationError(
+#                 {"detail": "both like and dislike field must not be all True."}
+#             )
+#         return attrs
