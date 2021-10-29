@@ -4,7 +4,6 @@ from .views import *
 
 # TODO: make clean url pattern
 urlpatterns = [
-    # path("comments", CommentRecursiveView.as_view()),
     path(
         "list/<str:category_name>/<int:obj_id>/comments",
         CommentListByQueryAndCreateView.as_view(),
