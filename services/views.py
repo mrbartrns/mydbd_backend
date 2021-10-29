@@ -121,25 +121,23 @@ class CommentUpdateAndDeleteView(APIView):
         )
 
 
-# TODO: have to modifiy detail
 class CommentLikeView(APIView):
     permission_classes = [IsAuthenticated]
     # serializer_class = services_serializers.LikePostSerializer
     serializer_class = services_serializers.LikeSerializer
 
     def get(self, request, pk):
-        like = services_models.Like.objects.get(user=request.user, comment=pk)
-        if services_serializers.Like.filter(id=like).exists():
-
+        likes = services_models.Like.objects.filter(user=request.user, comment=pk)
+        if likes.exists():
+            like = likes[0]
             return Response(
                 # services_serializers.LikeSerializer(like).data,
                 self.serializer_class(like).data,
                 status=status.HTTP_200_OK,
             )
-        return Response({"detail": "error"})
+        return Response({"detail": "You have not been liked comment."})
 
-    # TODO: separate post and delete method
-    # TODO: if object exsists: just change state like or dislike=True, dont remove objects
+    # TODO: like를 클릭 후 dislike를 누른 뒤 문제 없게 해야 함 -> 프론트에서 처리
     def post(self, request, pk):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -149,9 +147,16 @@ class CommentLikeView(APIView):
             )
             if likes.exists():
                 like = likes[0]
-                like.delete()
+                like.like = False
+                like.dislike = False
+                # True, False 결정은 Frontend에서 처리
+                if serializer.validated_data.get("like"):
+                    like.like = True
+                elif serializer.validated_data.get("dislike"):
+                    like.dislike = True
+                like.save()
                 return Response(
-                    {"detail": "successfully deleted."}, status=status.HTTP_202_ACCEPTED
+                    self.serializer_class(like).data, status=status.HTTP_202_ACCEPTED
                 )
             like = serializer.save(comment=comment, user=request.user)
             return Response(
