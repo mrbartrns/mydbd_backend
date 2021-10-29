@@ -43,6 +43,11 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
+        extra_kwargs = {
+            "author": {"read_only": True},
+            "depth": {"read_only": True},
+            "category": {"read_only": True},
+        }
 
     def get_children_count(self, obj):
         return obj.children.count()
@@ -75,6 +80,11 @@ class CommentSerializer(serializers.ModelSerializer):
         if query.exists():
             return True
         return False
+
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get("content", instance.content)
+        instance.save()
+        return instance
 
 
 # serializer.Serializer를 이용하여 사용하지 않아도 ModelSerializer를 불러와 원하는 field만 입력받도록 하면 된다.

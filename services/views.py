@@ -22,12 +22,13 @@ class CommentPagination(PageNumberPagination):
 # Create your views here.
 class CommentListByQueryAndCreateView(APIView, CommentPagination):
     permission_classes = [IsAuthenticated | ReadOnly]
+    serializer_class = services_serializers.CommentSerializer
 
     def get(self, request, category_name, obj_id):
         """
         query_string에 따라 depth를 나누어주는 view
         """
-        serializer = services_serializers.CommentSerializer
+        serializer = self.serializer_class
         parent = request.GET.get("parent", None)
         # TODO: 추후에 like를 모델에 추가한다. 현재는 등록순으로 추가
         sortby = request.GET.get("sortby", "recent")
@@ -63,7 +64,7 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
         return response
 
     def post(self, request, category_name, obj_id):
-        serializer = services_serializers.CommentPostSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         category = None
 
         if category_name == "killer":
@@ -92,7 +93,7 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
 
 class CommentUpdateAndDeleteView(APIView):
     permission_classes = [IsOwnerOrStaff]
-    serializer_class = services_serializers.CommentPostSerializer
+    serializer_class = services_serializers.CommentSerializer
 
     # for test
     def get(self, request, pk):
