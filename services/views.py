@@ -11,12 +11,45 @@ import services.models as services_models
 import services.serializers as services_serializers
 from backend.permissions import *
 
+CATEGORY_DICT = {
+    "KILLER": "killer",
+    "SURVIVOR": "survivor",
+    "PERK": "perk",
+    "ITEM": "item",
+    "ADDON": "addon",
+}
+
 
 # Comment Pagination
 class CommentPagination(PageNumberPagination):
     # TODO: change page_query_param page -> cp
     page_query_param = "page"
     page_size = 10
+
+
+# comment object functions
+def get_comments_by_category_name_and_object_id(category_name, obj_id):
+    comments = None
+    category = get_category_object(category_name, obj_id)
+    if not category:
+        return comments
+    comments = category.comments.all()
+    return comments
+
+
+def get_category_object(category_name, obj_id):
+    category = None
+    if category_name == CATEGORY_DICT["KILLER"]:
+        category = apis_models.Killer.objects.get(id=obj_id).category
+    elif category_name == CATEGORY_DICT["SURVIVOR"]:
+        category = apis_models.Survivor.objects.get(id=obj_id).category
+    elif category_name == CATEGORY_DICT["PERK"]:
+        category = apis_models.Perk.objects.get(id=obj_id).category
+    elif category_name == CATEGORY_DICT["ITEM"]:
+        category = apis_models.Item.objects.get(id=obj_id).category
+    elif category_name == CATEGORY_DICT["ADDON"]:
+        category = apis_models.ItemAddon.objects.get(id=obj_id).category
+    return category
 
 
 # Create your views here.
@@ -32,27 +65,15 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
         parent = request.GET.get("parent", None)
         # TODO: 추후에 like를 모델에 추가한다. 현재는 등록순으로 추가
         sortby = request.GET.get("sortby", "recent")
-        comments = None
-        if category_name == "killer":
-            comments = apis_models.Killer.objects.get(id=obj_id).category.comments.all()
-        elif category_name == "survivor":
-            comments = apis_models.Survivor.objects.get(
-                id=obj_id
-            ).category.comments.all()
-        elif category_name == "perk":
-            comments = apis_models.Perk.objects.get(id=obj_id).category.comments.all()
-        elif category_name == "item":
-            comments = apis_models.Item.objects.get(id=obj_id).category.comments.all()
-        elif category_name == "addon":
-            comments = apis_models.ItemAddon.objects.get(
-                id=obj_id
-            ).category.comments.all()
+        comments = get_comments_by_category_name_and_object_id(category_name, obj_id)
 
+        # root 댓글 또는 child 댓글을 불러온다.
         if parent:
             comments = comments.filter(parent=parent)
         else:
             comments = comments.filter(depth=0)
 
+        # 댓글의 정렬방식을 결정한다.
         if sortby == "id":
             comments = comments.order_by("id")
         elif sortby == "recent":
@@ -65,16 +86,8 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
 
     def post(self, request, category_name, obj_id):
         serializer = self.serializer_class(data=request.data)
-        category = None
 
-        if category_name == "killer":
-            category = apis_models.Killer.objects.get(id=obj_id).category
-        elif category_name == "survivor":
-            category = apis_models.Survivor.objects.get(id=obj_id).category
-        elif category_name == "item":
-            category = apis_models.Item.objects.get(id=obj_id).category
-        elif category_name == "addon":
-            category = apis_models.ItemAddon.objects.get(id=obj_id).category
+        category = get_category_object(category_name, obj_id)
 
         if category and serializer.is_valid():
             data = serializer.validated_data
