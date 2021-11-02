@@ -6,7 +6,11 @@ from .views import *
 urlpatterns = [
     path(
         "list/<str:category_name>/<int:obj_id>/comments",
-        CommentListByQueryAndCreateView.as_view(),
+        CommentListView.as_view(),
+    ),
+    path(
+        "list/<str:category_name>/<int:obj_id>/comments/create",
+        CommentCreateView.as_view(),
     ),
     path("comment/<int:pk>", CommentUpdateAndDeleteView.as_view()),
     path("comment/<int:pk>/like", CommentLikeView.as_view()),

@@ -1,7 +1,7 @@
 from django.db.models import Case, When
 from rest_framework import serializers, status
 from rest_framework import permissions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
@@ -53,9 +53,10 @@ def get_category_object(category_name, obj_id):
 
 
 # Create your views here.
-class CommentListByQueryAndCreateView(APIView, CommentPagination):
-    permission_classes = [IsAuthenticated | ReadOnly]
+class CommentListView(APIView, CommentPagination):
     serializer_class = services_serializers.CommentSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
     def get(self, request, category_name, obj_id):
         """
@@ -84,6 +85,11 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
         response = self.get_paginated_response(serializer(page, many=True).data)
         return response
 
+
+class CommentCreateView(APIView):
+    serializer_class = services_serializers.CommentPostSerializer
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, category_name, obj_id):
         serializer = self.serializer_class(data=request.data)
 
@@ -94,7 +100,7 @@ class CommentListByQueryAndCreateView(APIView, CommentPagination):
             parent = data.get("parent", None)
             if parent and parent.parent:
                 return Response(
-                    {"detail": "bad request"}, status=status.HTTP_403_FORBIDDEN
+                    {"detail": "bad request"}, status=status.HTTP_400_BAD_REQUEST
                 )
             comment = serializer.save(author=request.user, category=category)
             return Response(
