@@ -25,7 +25,7 @@ class Comment(models.Model):
         verbose_name="comment-category",
         related_name="comments",
     )
-    content = models.TextField(verbose_name="content")
+    content = models.TextField(verbose_name="content", max_length=1000)
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
