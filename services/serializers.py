@@ -61,7 +61,6 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_dislike_count(self, obj):
         return obj.likes.filter(dislike=True).count()
 
-    # FIXME: request doesn't return anything neither logged in or logged out
     def get_user_liked(self, obj, **kwargs):
         try:
             user = None
