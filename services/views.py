@@ -55,8 +55,9 @@ def get_category_object(category_name, obj_id):
 # Create your views here.
 class CommentListView(APIView, CommentPagination):
     serializer_class = services_serializers.CommentSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [
+        IsAuthenticatedOrReadOnly
+    ]  # 댓글에 좋아요 눌렀는지 알기 위하여 authenticate 필요
 
     def get(self, request, category_name, obj_id):
         """
@@ -82,7 +83,9 @@ class CommentListView(APIView, CommentPagination):
         elif sortby == "like":
             pass
         page = self.paginate_queryset(comments, request, view=self)
-        response = self.get_paginated_response(serializer(page, many=True).data)
+        response = self.get_paginated_response(
+            serializer(page, many=True, context={"request": request}).data
+        )
         return response
 
 
@@ -160,6 +163,7 @@ class CommentLikeView(APIView):
     def post(self, request, pk):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            print(serializer.validated_data)
             comment = services_models.Comment.objects.get(id=pk)
             likes = services_models.Like.objects.filter(
                 comment=comment, user=request.user

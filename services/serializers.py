@@ -61,25 +61,32 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_dislike_count(self, obj):
         return obj.likes.filter(dislike=True).count()
 
-    def get_user_liked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+    # FIXME: request doesn't return anything neither logged in or logged out
+    def get_user_liked(self, obj, **kwargs):
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.likes.filter(user=user, like=True)
+            if query.exists():
+                return True
+            return False
+        except:
+            return False
 
     def get_user_disliked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.likes.filter(user=user, dislike=True)
+            if query.exists():
+                return True
+            return False
+        except:
+            return False
 
     def update(self, instance, validated_data):
         instance.content = validated_data.get("content", instance.content)
