@@ -66,7 +66,7 @@ class KillerDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
+        query = obj.category.likes.filter(user=user, dislike=True)
         if query.exists():
             return True
         return False
@@ -124,7 +124,7 @@ class SurvivorDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
+        query = obj.category.likes.filter(user=user, dislike=True)
         if query.exists():
             return True
         return False
@@ -182,7 +182,7 @@ class PerkDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
+        query = obj.category.likes.filter(user=user, dislike=True)
         if query.exists():
             return True
         return False
@@ -247,7 +247,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
+        query = obj.category.likes.filter(user=user, dislike=True)
         if query.exists():
             return True
         return False
@@ -307,7 +307,7 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
+        query = obj.category.likes.filter(user=user, dislike=True)
         if query.exists():
             return True
         return False

@@ -193,5 +193,27 @@ class DetailLikeView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = services_serializers.LikeSerializer
 
-    def get(self, request, category_name, obj_id):
-        pass
+    def post(self, request, category_name, obj_id):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            category = get_category_object(category_name, obj_id)
+            likes = services_models.Like.objects.filter(
+                category=category, user=request.user
+            )
+            if likes.exists():
+                like = likes[0]
+                like.like = False
+                like.dislike = False
+                if serializer.validated_data.get("like"):
+                    like.like = True
+                elif serializer.validated_data.get("dislike"):
+                    like.dislike = True
+                like.save()
+                return Response(
+                    self.serializer_class(like).data, status=status.HTTP_202_ACCEPTED
+                )
+            like = serializer.save(category=category, user=request.user)
+            return Response(
+                self.serializer_class(like).data, status=status.HTTP_202_ACCEPTED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

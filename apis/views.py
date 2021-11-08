@@ -8,6 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 
 import apis.serializers as apis_serializers
 from apis.models import Killer, Survivor, Item, ItemAddon, Perk
+from backend.permissions import IsAuthenticatedOrReadOnly
 
 
 class APIPagination(PageNumberPagination):
@@ -88,18 +89,19 @@ class ItemAddonListView(APIView, APIPagination):
 
 
 class KillerDetailView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = apis_serializers.KillerDetailSerializer
 
     def get(self, request, killer_id):
         killer = Killer.objects.get(id=killer_id)
-        return Response(self.serializer_class(killer).data, status=HTTP_200_OK)
+        return Response(
+            self.serializer_class(killer, context={"request": request}).data,
+            status=HTTP_200_OK,
+        )
 
 
 class SurvivorDetailView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = apis_serializers.SurvivorDetailSerializer
 
     def get(self, request, survivor_id):
@@ -108,8 +110,7 @@ class SurvivorDetailView(APIView):
 
 
 class PerkDetailView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = apis_serializers.PerkDetailSerializer
 
     def get(self, request, perk_id):
@@ -118,8 +119,7 @@ class PerkDetailView(APIView):
 
 
 class ItemDetailView(APIView):
-    permission_classes = []
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = apis_serializers.ItemAddonListSerializer
 
     def get(self, request, item_id):
@@ -128,8 +128,7 @@ class ItemDetailView(APIView):
 
 
 class ItemAddonDetailView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = apis_serializers.ItemAddonDetailSerializer
 
     def get(self, request, addon_id):
