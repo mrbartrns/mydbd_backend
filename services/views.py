@@ -163,7 +163,6 @@ class CommentLikeView(APIView):
     def post(self, request, pk):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            print(serializer.validated_data)
             comment = services_models.Comment.objects.get(id=pk)
             likes = services_models.Like.objects.filter(
                 comment=comment, user=request.user
