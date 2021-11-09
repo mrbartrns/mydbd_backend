@@ -38,3 +38,10 @@ class ArticleAdmin(admin.ModelAdmin):
     )
     list_display_links = ("author", "title")
     list_filter = ("author", "title", "article_category")
+
+
+@admin.register(ArticleTag)
+class ArticleTagAdmin(admin.ModelAdmin):
+    list_display = ("tag", "article")
+    list_display_links = ("tag", "article")
+    list_filter = ("tag", "article")
