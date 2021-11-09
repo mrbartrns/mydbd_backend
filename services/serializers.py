@@ -123,3 +123,18 @@ class LikeSerializer(serializers.ModelSerializer):
                 {"detail": "both like and dislike field must not be all True."}
             )
         return super().validate(attrs)
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = "__all__"
+
+
+class ArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = "__all__"
+        extra_kwargs = {
+            "author": {"read_only": True}
+        }  # view에서  save시 author=request.user 설정
