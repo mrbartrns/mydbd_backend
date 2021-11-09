@@ -24,3 +24,17 @@ class LikeAdmin(admin.ModelAdmin):
     list_display = ("user", "category", "comment", "like", "dislike")
     list_display_links = ("user", "category", "comment")
     list_filter = ("category", "comment")
+
+
+@admin.register(Article)
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = (
+        "author",
+        "article_category",
+        "title",
+        "content",
+        "dt_created",
+        "dt_modified",
+    )
+    list_display_links = ("author", "title")
+    list_filter = ("author", "title", "article_category")

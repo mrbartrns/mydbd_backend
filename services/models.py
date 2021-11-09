@@ -64,3 +64,40 @@ class Like(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username} likes comment id  {self.comment if self.comment else self.category.id}"
+
+
+class ArticleCategory(models.Model):
+    name = models.CharField(max_length=20)
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+
+
+class Article(models.Model):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        verbose_name="author",
+        related_name="articles",
+        null=True,
+    )
+    article_category = models.ForeignKey(
+        ArticleCategory,
+        on_delete=models.SET_NULL,
+        verbose_name="article category",
+        related_name="articles",
+        null=True,
+    )  # TODO: modify after creatng articleCategory
+    title = models.CharField(max_length=50)
+    content = models.TextField(max_length=5000)
+    tags = models.ManyToManyField(
+        Tag, through="ArticleTag", related_name="articles", blank=True
+    )
+    dt_created = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
+    dt_modified = models.DateTimeField(auto_now=True, verbose_name="수정일")
+
+
+class ArticleTag(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
