@@ -73,6 +73,9 @@ class ArticleCategory(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=50)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Article(models.Model):
     author = models.ForeignKey(
@@ -97,7 +100,13 @@ class Article(models.Model):
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
+    def __str__(self) -> str:
+        return self.title
+
 
 class ArticleTag(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"Article object with tag name {self.tag.name if self.tag else 'None'}, article title {self.article.title if self.article else 'None'}"
