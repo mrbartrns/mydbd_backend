@@ -1,6 +1,7 @@
 """
 All List of game props do in api.serializer
 """
+from django.db.models import query
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -131,10 +132,50 @@ class TagSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+# TODO: Add user_like field and disliked field on serializer
 class ArticleSerializer(serializers.ModelSerializer):
+
+    author = accounts_serializers.UserSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    user_disliked = serializers.SerializerMethodField()
+
     class Meta:
         model = Article
         fields = "__all__"
         extra_kwargs = {
             "author": {"read_only": True}
         }  # view에서  save시 author=request.user 설정
+
+    def get_like_count(self, obj):
+        return obj.likes.filter(like=True).count()
+
+    def get_dislike_count(self, obj):
+        return obj.likes.filter(dislike=True).count()
+
+    def get_user_liked(self, obj):
+        try:
+            user = None
+            request = self.context.get("request")
+            if request.user:
+                user = request.user
+            likes = obj.likes.filter(user=user, like=True)
+            if likes.exists():
+                return True
+            return False
+        except:
+            return False
+
+    def get_user_disliked(self, obj):
+        try:
+            user = None
+            request = self.context.get("request")
+            if request.user:
+                user = request.user
+            likes = obj.likes.filter(user=user, like=True)
+            if likes.exists():
+                return True
+            return False
+        except:
+            return False
