@@ -228,6 +228,7 @@ class ArticleListView(APIView, ArticlePagination):
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = services_serializers.ArticleSerializer
 
+    # TODO: sort by query 만들기
     def get(self, request):
         articles = services_models.Article.objects.all()
         page = self.paginate_queryset(articles, request, view=self)
@@ -267,3 +268,9 @@ class ArticleDetailView(APIView):
                 self.serializer_class(article).data, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        article = get_object_or_404(services_models.Article, id=pk)
+        self.check_object_permissions(request, article)
+        article.delete()  # TODO: 지우지 말고 비활성화로 바꾸기
+        return Response({"detail": "successfully deleted."})
