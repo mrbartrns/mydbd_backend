@@ -29,7 +29,7 @@ class IsAuthenticatedOrReadOnly(BasePermission):
         if (
             request.method in SAFE_METHODS
             or request.user
-            and request.user.is_authenticated()
+            and request.user.is_authenticated
         ):
             return True
         return False
@@ -41,6 +41,4 @@ class IsOwnerOrStaff(BasePermission):
     message = "Object can be updated by owner or staff."
 
     def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return True
         return obj.author == request.user or request.user.is_staff

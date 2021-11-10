@@ -1,4 +1,5 @@
 from django.db.models import Case, When
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -25,6 +26,11 @@ class CommentPagination(PageNumberPagination):
     # TODO: change page_query_param page -> cp
     page_query_param = "page"
     page_size = 10
+
+
+class ArticlePagination(PageNumberPagination):
+    page_query_param = "page"
+    page_size = 30
 
 
 # comment object functions
@@ -159,7 +165,6 @@ class CommentLikeView(APIView):
             )
         return Response({"detail": "You have not been liked comment."})
 
-    # TODO: like를 클릭 후 dislike를 누른 뒤 문제 없게 해야 함 -> 프론트에서 처리
     def post(self, request, pk):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -182,7 +187,6 @@ class CommentLikeView(APIView):
                 )
             like = serializer.save(comment=comment, user=request.user)
             return Response(
-                # services_serializers.LikeSerializer(like).data,
                 self.serializer_class(like).data,
                 status=status.HTTP_202_ACCEPTED,
             )
@@ -215,5 +219,51 @@ class DetailLikeView(APIView):
             like = serializer.save(category=category, user=request.user)
             return Response(
                 self.serializer_class(like).data, status=status.HTTP_202_ACCEPTED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# service/forum/list
+class ArticleListView(APIView, ArticlePagination):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = services_serializers.ArticleSerializer
+
+    def get(self, request):
+        articles = services_models.Article.objects.all()
+        page = self.paginate_queryset(articles, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True).data
+        )
+        return response
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            article = serializer.save(author=request.user)
+            return Response(
+                self.serializer_class(article).data, status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ArticleDetailView(APIView):
+    permission_classes = [IsOwnerOrStaff]
+    serializer_class = services_serializers.ArticleSerializer
+
+    def get(self, request, pk):
+        article = get_object_or_404(services_models.Article, id=pk)
+        return Response(
+            self.serializer_class(article, context={"request": request}).data,
+            status=status.HTTP_200_OK,
+        )
+
+    def put(self, request, pk):
+        article = get_object_or_404(services_models.Article, id=pk)
+        serializer = self.serializer_class(article, data=request.data)
+        self.check_object_permissions(request, article)
+        if serializer.is_valid():
+            article = serializer.save()
+            return Response(
+                self.serializer_class(article).data, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

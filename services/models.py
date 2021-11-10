@@ -100,6 +100,9 @@ class Article(models.Model):
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
+    class Meta:
+        ordering = ["-id"]
+
     def __str__(self) -> str:
         return self.title
 
