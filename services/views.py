@@ -274,3 +274,35 @@ class ArticleDetailView(APIView):
         self.check_object_permissions(request, article)
         article.delete()  # TODO: 지우지 말고 비활성화로 바꾸기
         return Response({"detail": "successfully deleted."})
+
+
+class ArticleLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = services_serializers.LikeSerializer
+
+    def get(self, request, pk):
+        return Response({"here": "here"}, status=status.HTTP_200_OK)
+
+    def post(self, request, pk):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            article = services_serializers.Article.objects.get(id=pk)
+            likes = article.likes.filter(user=request.user)
+            if likes.exists():
+                like = likes[0]
+                like.like = False
+                like.dislike = False
+                if serializer.validated_data.get("like"):
+                    like.like = True
+                elif serializer.validated_data.get("dislike"):
+                    like.dislike = True
+                like.save()
+                return Response(
+                    self.serializer_class(like).data, status=status.HTTP_202_ACCEPTED
+                )
+            like = serializer.save(article=article, user=request.user)
+            return Response(
+                self.serializer_class(like).data,
+                status=status.HTTP_202_ACCEPTED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

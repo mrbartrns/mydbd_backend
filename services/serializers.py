@@ -115,11 +115,12 @@ class LikeSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "category": {"read_only": True},
             "comment": {"read_only": True},
+            "article": {"read_only": True},
             "user": {"read_only": True},
         }
 
     def validate(self, attrs):
-        if attrs["like"] and attrs["dislike"]:
+        if attrs.get("like", False) and attrs.get("dislike", False):
             raise ValidationError(
                 {"detail": "both like and dislike field must not be all True."}
             )
