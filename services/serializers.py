@@ -1,7 +1,6 @@
 """
 All List of game props do in api.serializer
 """
-from django.db.models import query
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -72,7 +71,7 @@ class CommentSerializer(serializers.ModelSerializer):
             if query.exists():
                 return True
             return False
-        except:
+        except TypeError:
             return False
 
     def get_user_disliked(self, obj):
@@ -85,7 +84,7 @@ class CommentSerializer(serializers.ModelSerializer):
             if query.exists():
                 return True
             return False
-        except:
+        except TypeError:
             return False
 
     def update(self, instance, validated_data):
@@ -127,6 +126,10 @@ class LikeSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
+class TagListInputField(serializers.ListField):
+    child = serializers.CharField(min_length=1, max_length=20)
+
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -141,6 +144,8 @@ class ArticleSerializer(serializers.ModelSerializer):
     dislike_count = serializers.SerializerMethodField()
     user_liked = serializers.SerializerMethodField()
     user_disliked = serializers.SerializerMethodField()
+    tags = TagSerializer(read_only=True, many=True)
+    tags_input = TagListInputField(allow_empty=True, max_length=5, write_only=True)
 
     class Meta:
         model = Article
@@ -165,7 +170,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             if likes.exists():
                 return True
             return False
-        except:
+        except TypeError:
             return False
 
     def get_user_disliked(self, obj):
@@ -178,5 +183,5 @@ class ArticleSerializer(serializers.ModelSerializer):
             if likes.exists():
                 return True
             return False
-        except:
+        except TypeError:
             return False

@@ -52,24 +52,30 @@ class KillerDetailSerializer(serializers.ModelSerializer):
         return obj.category.likes.filter(dislike=True).count()
 
     def get_user_liked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, like=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
     def get_user_disliked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, dislike=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, dislike=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
 
 class SurvivorListSerializer(serializers.ModelSerializer):
@@ -110,24 +116,30 @@ class SurvivorDetailSerializer(serializers.ModelSerializer):
         return obj.category.likes.filter(dislike=True).count()
 
     def get_user_liked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, like=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
     def get_user_disliked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, dislike=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, dislike=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
 
 class PerkListSerializer(serializers.ModelSerializer):
@@ -168,24 +180,30 @@ class PerkDetailSerializer(serializers.ModelSerializer):
         return obj.category.likes.filter(dislike=True).count()
 
     def get_user_liked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, like=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
     def get_user_disliked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, dislike=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, dislike=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
 
 class ItemCategorySerializer(serializers.ModelSerializer):
@@ -233,24 +251,30 @@ class ItemDetailSerializer(serializers.ModelSerializer):
         return obj.category.likes.filter(dislike=True).count()
 
     def get_user_liked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, like=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
     def get_user_disliked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, dislike=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, dislike=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
 
 class ItemAddonListSerializer(serializers.ModelSerializer):
@@ -293,24 +317,30 @@ class ItemAddonDetailSerializer(serializers.ModelSerializer):
         return obj.category.likes.filter(dislike=True).count()
 
     def get_user_liked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, like=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, like=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
     def get_user_disliked(self, obj):
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        query = obj.category.likes.filter(user=user, dislike=True)
-        if query.exists():
-            return True
-        return False
+        try:
+            user = None
+            request = self.context.get("request")
+            if request and hasattr(request, "user"):
+                user = request.user
+            query = obj.category.likes.filter(user=user, dislike=True)
+            if query.exists():
+                return True
+            return False
+        except TypeError:
+            return False
 
 
 class CategorySerializer(serializers.ModelSerializer):
