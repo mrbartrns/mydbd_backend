@@ -14,6 +14,7 @@ urlpatterns = [
     ),
     path("comment/<int:pk>", CommentUpdateAndDeleteView.as_view()),
     path("comment/<int:pk>/like", CommentLikeView.as_view()),
+    path("search/tag", TagSearchView.as_view()),
     path("forum/<int:pk>/like", ArticleLikeView.as_view()),
     path("forum/list", ArticleListView.as_view()),
     path("forum/<int:pk>", ArticleDetailView.as_view()),
