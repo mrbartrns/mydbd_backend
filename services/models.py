@@ -64,6 +64,7 @@ class Article(models.Model):
     )  # TODO: modify after creatng articleCategory
     title = models.CharField(max_length=50)
     content = models.TextField(max_length=5000)
+    hit = models.PositiveIntegerField(default=0)
     tags = models.ManyToManyField(
         Tag, through="ArticleTag", related_name="articles", blank=True
     )
@@ -120,3 +121,19 @@ class Like(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username} likes comment id  {self.comment if self.comment else self.category.id}"
+
+
+class SaveIp(models.Model):
+    ip_address = models.GenericIPAddressField()
+    counts = models.PositiveIntegerField(default=0)
+    article = models.ForeignKey(
+        Article, on_delete=models.CASCADE, related_name="ip_addresses"
+    )
+    dt_created = models.DateTimeField(auto_now_add=True)
+    dt_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return f"{self.ip_address}"
