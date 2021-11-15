@@ -224,6 +224,7 @@ class DetailLikeView(APIView):
 
 
 # service/forum/list
+# TODO: Tag 만들고 Article에 set, add를 이용하여 연결하기
 class ArticleListView(APIView, ArticlePagination):
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = services_serializers.ArticleSerializer
@@ -233,7 +234,7 @@ class ArticleListView(APIView, ArticlePagination):
         articles = services_models.Article.objects.all()
         page = self.paginate_queryset(articles, request, view=self)
         response = self.get_paginated_response(
-            self.serializer_class(page, many=True).data
+            self.serializer_class(page, context={"request": request}, many=True).data
         )
         return response
 
@@ -306,3 +307,23 @@ class ArticleLikeView(APIView):
                 status=status.HTTP_202_ACCEPTED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# TODO: 최근 검색된 순서대로 정렬하는 것으로 바꾸기, 아무것도 입력 되지 않았을 때 처리
+class TagSearchView(APIView):
+    """
+    TagListView는 오직 Article을 post하기 전 Frontend에서
+    이미 있는 List들을 검색하는데 사용되는 view 입니다.
+    """
+
+    permission_classes = [AllowAny]
+    serializer_class = services_serializers.TagSerializer
+
+    def get(self, request):
+        name = request.query_params.get("tag_name")
+        result = services_models.Tag.objects.filter(name__contains=name).order_by(
+            "-id"
+        )[:10]
+        return Response(
+            self.serializer_class(result, many=True).data, status=status.HTTP_200_OK
+        )
