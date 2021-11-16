@@ -58,6 +58,16 @@ def get_category_object(category_name, obj_id):
     return category
 
 
+def get_client_ip(request):
+    ip = None
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    return ip
+
+
 # Create your views here.
 class CommentListView(APIView, CommentPagination):
     serializer_class = services_serializers.CommentSerializer
@@ -248,12 +258,33 @@ class ArticleListView(APIView, ArticlePagination):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# TODO: test
 class ArticleDetailView(APIView):
     permission_classes = [IsOwnerOrStaff]
     serializer_class = services_serializers.ArticleSerializer
 
     def get(self, request, pk):
         article = get_object_or_404(services_models.Article, id=pk)
+        # ip를 기준으로 5번 이하로 클릭했다면 조회수가 증가
+        client_ip = get_client_ip(request)
+        ip_list = services_models.SaveIp.objects.filter(
+            article=pk, ip_address=client_ip
+        )
+        if ip_list.exists():
+            client = ip_list[0]
+            if client.counts < 5:
+                client.counts += 1
+                client.save()
+                article.hit += 1
+                article.save()
+        else:
+            client = services_models.SaveIp.create(
+                ip_address=client_ip, article=article
+            )
+            client.counts += 1
+            client.save()
+            article.hit += 1
+            article.save()
         return Response(
             self.serializer_class(article, context={"request": request}).data,
             status=status.HTTP_200_OK,
