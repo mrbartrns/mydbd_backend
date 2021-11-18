@@ -25,6 +25,13 @@ class Comment(models.Model):
         verbose_name="comment-category",
         related_name="comments",
     )
+    article = models.ForeignKey(
+        "Article",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="comments",
+    )
     content = models.TextField(verbose_name="content", max_length=500)
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="수정일")
