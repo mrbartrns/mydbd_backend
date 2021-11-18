@@ -33,6 +33,11 @@ class ArticlePagination(PageNumberPagination):
     page_size = 30
 
 
+class ArticleCommentPagination(PageNumberPagination):
+    page_query_param = "cp"
+    page_size = 30
+
+
 # comment object functions
 def get_comments_by_category_name_and_object_id(category_name, obj_id):
     comments = None
@@ -259,12 +264,18 @@ class ArticleListView(APIView, ArticlePagination):
 
 
 # TODO: test
-class ArticleDetailView(APIView):
+class ArticleDetailView(APIView, ArticleCommentPagination):
     permission_classes = [IsOwnerOrStaff]
     serializer_class = services_serializers.ArticleSerializer
 
     def get(self, request, pk):
         article = get_object_or_404(services_models.Article, id=pk)
+        comments = article.comments.all()
+        if comments is not None:
+            comments = comments.annotate(
+                sort_order_true=Case(When(parent=not None, then="parent"), default="id")
+            ).order_by("sort_order_true")
+        page = self.paginate_queryset(comments, request, view=self)
         # ip를 기준으로 5번 이하로 클릭했다면 조회수가 증가
         client_ip = get_client_ip(request)
         ip_list = services_models.SaveIp.objects.filter(
@@ -278,7 +289,7 @@ class ArticleDetailView(APIView):
                 article.hit += 1
                 article.save()
         else:
-            client = services_models.SaveIp.create(
+            client = services_models.SaveIp.objects.create(
                 ip_address=client_ip, article=article
             )
             client.counts += 1
@@ -286,7 +297,9 @@ class ArticleDetailView(APIView):
             article.hit += 1
             article.save()
         return Response(
-            self.serializer_class(article, context={"request": request}).data,
+            self.serializer_class(
+                article, context={"request": request, "comments": page}
+            ).data,
             status=status.HTTP_200_OK,
         )
 
