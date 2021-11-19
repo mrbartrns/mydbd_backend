@@ -253,6 +253,7 @@ class ArticleListView(APIView, ArticlePagination):
         )
         return response
 
+    # TODO: Separate Article list and create(post)
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():

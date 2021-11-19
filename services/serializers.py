@@ -126,10 +126,6 @@ class LikeSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
-class TagListInputField(serializers.ListField):
-    child = serializers.CharField(min_length=1, max_length=20)
-
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -140,12 +136,11 @@ class TagSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
 
     author = accounts_serializers.UserSerializer(read_only=True)
-    like_count = serializers.SerializerMethodField()
-    dislike_count = serializers.SerializerMethodField()
-    user_liked = serializers.SerializerMethodField()
-    user_disliked = serializers.SerializerMethodField()
-    tags = TagSerializer(read_only=True, many=True)
-    tags_input = TagListInputField(allow_empty=True, max_length=5, write_only=True)
+    like_count = serializers.SerializerMethodField(read_only=True)
+    dislike_count = serializers.SerializerMethodField(read_only=True)
+    user_liked = serializers.SerializerMethodField(read_only=True)
+    user_disliked = serializers.SerializerMethodField(read_only=True)
+    tags = TagSerializer(many=True)
     comments = serializers.SerializerMethodField(read_only=True)
     count = serializers.SerializerMethodField(read_only=True)
 
@@ -172,7 +167,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             if likes.exists():
                 return True
             return False
-        except TypeError:
+        except:
             return False
 
     def get_user_disliked(self, obj):
@@ -185,7 +180,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             if likes.exists():
                 return True
             return False
-        except TypeError:
+        except:
             return False
 
     def get_comments(self, obj):
@@ -196,3 +191,14 @@ class ArticleSerializer(serializers.ModelSerializer):
     # article comment count
     def get_count(self, obj):
         return obj.comments.count()
+
+    # TODO: 무결하게 코드 작성
+    def create(self, validated_data):
+        tags = validated_data.pop("tags") or []
+        article = Article.objects.create(**validated_data)
+        for tag in tags:
+            tag = TagSerializer(data=tag)
+            if tag.is_valid():
+                tag = tag.save()
+                article.tags.add(tag)
+        return article
