@@ -127,7 +127,7 @@ class Like(models.Model):
         ordering = ["id"]
 
     def __str__(self) -> str:
-        return f"{self.user.username} likes comment id  {self.comment if self.comment else self.category.id}"
+        return f"{self.user.username} likes comment id"
 
 
 class SaveIp(models.Model):
