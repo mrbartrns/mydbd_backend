@@ -45,3 +45,10 @@ class ArticleTagAdmin(admin.ModelAdmin):
     list_display = ("tag", "article")
     list_display_links = ("tag", "article")
     list_filter = ("tag", "article")
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    list_display_links = ("name",)
+    list_filter = ("name",)
