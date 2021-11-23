@@ -140,7 +140,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     dislike_count = serializers.SerializerMethodField(read_only=True)
     user_liked = serializers.SerializerMethodField(read_only=True)
     user_disliked = serializers.SerializerMethodField(read_only=True)
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, required=False)
     comments = serializers.SerializerMethodField(read_only=True)
     count = serializers.SerializerMethodField(read_only=True)
 
@@ -194,11 +194,18 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     # TODO: 무결하게 코드 작성
     def create(self, validated_data):
-        tags = validated_data.pop("tags") or []
+        tags = validated_data.get("tags", [])
+        if tags:
+            validated_data.pop("tags")
         article = Article.objects.create(**validated_data)
         for tag in tags:
-            tag = TagSerializer(data=tag)
-            if tag.is_valid():
-                tag = tag.save()
-                article.tags.add(tag)
+            # FIXME: 같은 Tag가 계속해서 생기지 않게 수정
+            tag = Tag(**tag)
+            if not Tag.objects.filter(name=tag.name).exists():
+                tag.save()
+            else:
+                tag = Tag.objects.get(name=tag.name)
+            article.tags.add(tag)
         return article
+
+    # TODO: update 함수 작성
