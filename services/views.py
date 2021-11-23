@@ -139,7 +139,6 @@ class ArticleCommentCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        print(request.data)
         serializer = self.serializer_class(data=request.data)
         article = get_object_or_404(services_models.Article, id=pk)
         if serializer.is_valid():
