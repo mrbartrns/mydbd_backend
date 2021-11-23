@@ -47,6 +47,7 @@ class ArticleCategory(models.Model):
     name = models.CharField(max_length=20)
 
 
+# TODO: Add dt_Created, dt_modified field
 class Tag(models.Model):
     name = models.CharField(max_length=50)
 
