@@ -19,7 +19,7 @@ urlpatterns = [
     path("forum/<int:pk>/like", ArticleLikeView.as_view()),
     path("forum/list", ArticleListView.as_view()),
     path("forum/article/create", ArticleCreateView().as_view()),
-    path("forum/<int:pk>", ArticleDetailView.as_view()),
+    path("forum/article/<int:pk>", ArticleDetailView.as_view()),
     path(
         "<str:category_name>/<int:obj_id>/like", DetailLikeView.as_view()
     ),  # <str:category> 에 forum이 매칭될 수 있으므로 항상 맨 뒤에 위치
