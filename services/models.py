@@ -24,6 +24,8 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         verbose_name="comment-category",
         related_name="comments",
+        null=True,
+        blank=True,
     )
     article = models.ForeignKey(
         "Article",
