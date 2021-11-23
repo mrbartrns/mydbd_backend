@@ -195,7 +195,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     # TODO: 무결하게 코드 작성
     def create(self, validated_data):
         tags = validated_data.get("tags", [])
-        if tags:
+        if "tags" in validated_data:
             validated_data.pop("tags")
         article = Article.objects.create(**validated_data)
         for tag in tags:
@@ -208,4 +208,15 @@ class ArticleSerializer(serializers.ModelSerializer):
             article.tags.add(tag)
         return article
 
-    # TODO: update 함수 작성
+    # TODO: TEST required
+    def update(self, instance, validated_data):
+        tags = validated_data.get("tags", [])
+        if "tags" in validated_data:
+            validated_data.pop("tags")
+        instance.tags.clear()
+        for tag in tags:
+            tag = Tag(**tag)
+            if not Tag.objects.filter(name=tag).exists():
+                tag.save()
+            instance.tags.add(tag)
+        return super().update(instance, validated_data)
