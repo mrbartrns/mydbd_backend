@@ -134,6 +134,30 @@ class CommentCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# TODO: Create Article Comment create view -> Not ArticleCommentUpdateAndDeleteVeiw is needed
+# TODO: test required
+class ArticleCommentCreateView(APIView):
+    permission_classes = [services_serializers.CommentSerializer]
+    serializer_class = [IsAuthenticated]
+
+    def post(self, request, pk):
+        serializer = self.serializer_class(data=request.data)
+        article = get_object_or_404(services_models.Article, id=pk)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            parent = data.get("parent", None)
+            if parent and parent.parent:
+                return Response(
+                    {"detail": "bad request"}, status=status.HTTP_400_BAD_REQUEST
+                )
+            comment = serializer.save(author=request.user, article=article)
+            return Response(
+                services_serializers.CommentSerializer(comment).data,
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class CommentUpdateAndDeleteView(APIView):
     permission_classes = [IsOwnerOrStaff]
     serializer_class = services_serializers.CommentSerializer
