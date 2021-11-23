@@ -12,7 +12,7 @@ urlpatterns = [
         "list/<str:category_name>/<int:obj_id>/comments/create",
         CommentCreateView.as_view(),
     ),
-    path("forum/<int:pk>/comment/create", ArticleCommentCreateView.as_view()),
+    path("forum/article/<int:pk>/comment/create", ArticleCommentCreateView.as_view()),
     path("comment/<int:pk>", CommentUpdateAndDeleteView.as_view()),
     path("comment/<int:pk>/like", CommentLikeView.as_view()),
     path("search/tag", TagSearchView.as_view()),

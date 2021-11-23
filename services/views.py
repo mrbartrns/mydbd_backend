@@ -1,7 +1,6 @@
 from django.db.models import Case, When
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
-from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -135,12 +134,12 @@ class CommentCreateView(APIView):
 
 
 # TODO: Create Article Comment create view -> Not ArticleCommentUpdateAndDeleteVeiw is needed
-# TODO: test required
 class ArticleCommentCreateView(APIView):
-    permission_classes = [services_serializers.CommentSerializer]
-    serializer_class = [IsAuthenticated]
+    serializer_class = services_serializers.CommentSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        print(request.data)
         serializer = self.serializer_class(data=request.data)
         article = get_object_or_404(services_models.Article, id=pk)
         if serializer.is_valid():
