@@ -265,7 +265,7 @@ class DetailLikeView(APIView):
 # service/forum/list
 # TODO: separate Article get, post view
 class ArticleListView(APIView, ArticlePagination):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     serializer_class = services_serializers.ArticleSerializer
 
     # TODO: sort by query 만들기
