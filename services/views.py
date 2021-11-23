@@ -208,6 +208,7 @@ class CommentLikeView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# TODO: 날짜가 바뀌면 초기화 카운트를 초기화하고 다시 조회수 증가시키기
 class DetailLikeView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = services_serializers.LikeSerializer
@@ -239,7 +240,7 @@ class DetailLikeView(APIView):
 
 
 # service/forum/list
-# TODO: Tag 만들고 Article에 set, add를 이용하여 연결하기
+# TODO: separate Article get, post view
 class ArticleListView(APIView, ArticlePagination):
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = services_serializers.ArticleSerializer
@@ -253,7 +254,11 @@ class ArticleListView(APIView, ArticlePagination):
         )
         return response
 
-    # TODO: Separate Article list and create(post)
+
+class ArticleCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = services_serializers.ArticleSerializer
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -264,7 +269,7 @@ class ArticleListView(APIView, ArticlePagination):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: test
+# TODO: test post, get, delete first and after put
 class ArticleDetailView(APIView, ArticleCommentPagination):
     permission_classes = [IsOwnerOrStaff]
     serializer_class = services_serializers.ArticleSerializer
