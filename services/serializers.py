@@ -132,7 +132,6 @@ class TagSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# TODO: Add user_like field and disliked field on serializer
 class ArticleSerializer(serializers.ModelSerializer):
 
     author = accounts_serializers.UserSerializer(read_only=True)
@@ -192,14 +191,12 @@ class ArticleSerializer(serializers.ModelSerializer):
     def get_count(self, obj):
         return obj.comments.count()
 
-    # TODO: 무결하게 코드 작성
     def create(self, validated_data):
-        tags = validated_data.get("tags", [])
+        tags = []
         if "tags" in validated_data:
-            validated_data.pop("tags")
+            tags = validated_data.pop("tags")
         article = Article.objects.create(**validated_data)
         for tag in tags:
-            # FIXME: 같은 Tag가 계속해서 생기지 않게 수정
             tag = Tag(**tag)
             if not Tag.objects.filter(name=tag.name).exists():
                 tag.save()
@@ -208,15 +205,16 @@ class ArticleSerializer(serializers.ModelSerializer):
             article.tags.add(tag)
         return article
 
-    # TODO: TEST required
     def update(self, instance, validated_data):
-        tags = validated_data.get("tags", [])
+        tags = []
         if "tags" in validated_data:
-            validated_data.pop("tags")
+            tags = validated_data.pop("tags")
         instance.tags.clear()
         for tag in tags:
             tag = Tag(**tag)
-            if not Tag.objects.filter(name=tag).exists():
+            if not Tag.objects.filter(name=tag.name).exists():
                 tag.save()
+            else:
+                tag = Tag.objects.get(name=tag.name)
             instance.tags.add(tag)
         return super().update(instance, validated_data)
