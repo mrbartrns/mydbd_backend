@@ -221,7 +221,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class ArticlePostSerializer(serializers.ModelSerializer):
-    author = accounts_serializers.UserSerializer()
+    author = accounts_serializers.UserSerializer(read_only=True)
     tags = TagSerializer(many=True, required=False)
 
     class Meta:

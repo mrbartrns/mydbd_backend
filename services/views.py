@@ -303,6 +303,7 @@ class ArticleUpdateView(APIView):
     def put(self, request, pk):
         article = get_object_or_404(services_models.Article, id=pk)
         serializer = self.serializer_class(instance=article, data=request.data)
+        self.check_object_permissions(request, article)
         if serializer.is_valid():
             article = serializer.save()
             return Response(
