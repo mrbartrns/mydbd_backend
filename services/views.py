@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db.models import Case, When
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
@@ -304,7 +305,7 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
                 sort_order_true=Case(When(parent=not None, then="parent"), default="id")
             ).order_by("sort_order_true")
         page = self.paginate_queryset(comments, request, view=self)
-        # ip를 기준으로 5번 이하로 클릭했다면 조회수가 증가
+        # TODO: ip를 기준으로 5번 이하로 클릭했다면 조회수가 증가 -> 날짜가 바뀌면 초기화
         client_ip = get_client_ip(request)
         ip_list = services_models.SaveIp.objects.filter(
             article=pk, ip_address=client_ip
@@ -316,6 +317,15 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
                 client.save()
                 article.hit += 1
                 article.save()
+            # TODO: 같은 IP 에서 TEST 필요
+            else:
+                date_diff = datetime.now() - client.dt_modified
+                if date_diff >= 1:
+                    client.counts = 0
+                    client.counts += 1
+                    client.save()
+                    article.hit += 1
+                    article.save()
         else:
             client = services_models.SaveIp.objects.create(
                 ip_address=client_ip, article=article
