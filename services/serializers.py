@@ -218,3 +218,41 @@ class ArticleSerializer(serializers.ModelSerializer):
                 tag = Tag.objects.get(name=tag.name)
             instance.tags.add(tag)
         return super().update(instance, validated_data)
+
+
+class ArticlePostSerializer(serializers.ModelSerializer):
+    author = accounts_serializers.UserSerializer()
+    tags = TagSerializer(many=True, required=False)
+
+    class Meta:
+        model = Article
+        fields = ("author", "title", "content", "tags")
+        extra_kwargs = {"author": {"read_only": True}}
+
+    def create(self, validated_data):
+        tags = []
+        if "tags" in validated_data:
+            tags = validated_data.pop("tags")
+        article = Article.objects.create(**validated_data)
+        for tag in tags:
+            tag = Tag(**tag)
+            if not Tag.objects.filter(name=tag.name).exists():
+                tag.save()
+            else:
+                tag = Tag.objects.get(name=tag.name)
+            article.tags.add(tag)
+        return article
+
+    def update(self, instance, validated_data):
+        tags = []
+        if "tags" in validated_data:
+            tags = validated_data.pop("tags")
+        instance.tags.clear()
+        for tag in tags:
+            tag = Tag(**tag)
+            if not Tag.objects.filter(name=tag.name).exists():
+                tag.save()
+            else:
+                tag = Tag.objects.get(name=tag.name)
+            instance.tags.add(tag)
+        return super().update(instance, validated_data)

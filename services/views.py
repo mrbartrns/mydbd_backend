@@ -280,7 +280,7 @@ class ArticleListView(APIView, ArticlePagination):
 
 class ArticleCreateView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = services_serializers.ArticleSerializer
+    serializer_class = services_serializers.ArticlePostSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -288,6 +288,25 @@ class ArticleCreateView(APIView):
             article = serializer.save(author=request.user)
             return Response(
                 self.serializer_class(article).data, status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ArticleUpdateView(APIView):
+    permission_classes = [IsOwnerOrStaff]
+    serializer_class = services_serializers.ArticlePostSerializer
+
+    def get(self, request, pk):
+        article = get_object_or_404(services_models.Article, id=pk)
+        return Response(self.serializer_class(article).data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        article = get_object_or_404(services_models.Article, id=pk)
+        serializer = self.serializer_class(instance=article, data=request.data)
+        if serializer.is_valid():
+            article = serializer.save()
+            return Response(
+                self.serializer_class(article).data, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -318,14 +337,14 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
                 article.hit += 1
                 article.save()
             # TODO: 같은 IP 에서 TEST 필요
-            else:
-                date_diff = datetime.now() - client.dt_modified
-                if date_diff >= 1:
-                    client.counts = 0
-                    client.counts += 1
-                    client.save()
-                    article.hit += 1
-                    article.save()
+            # else:
+            #     date_diff = datetime.now() - client.dt_modified
+            #     if date_diff >= 1:
+            #         client.counts = 0
+            #         client.counts += 1
+            #         client.save()
+            #         article.hit += 1
+            #         article.save()
         else:
             client = services_models.SaveIp.objects.create(
                 ip_address=client_ip, article=article
