@@ -336,7 +336,7 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
                 client.save()
                 article.hit += 1
                 article.save()
-            # TODO: 같은 IP 에서 TEST 필요
+            # FIXME: Can't subtract offset-naive and offset-aware datetimes
             # else:
             #     date_diff = datetime.now() - client.dt_modified
             #     if date_diff >= 1:
