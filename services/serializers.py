@@ -140,8 +140,6 @@ class ArticleSerializer(serializers.ModelSerializer):
     user_liked = serializers.SerializerMethodField(read_only=True)
     user_disliked = serializers.SerializerMethodField(read_only=True)
     tags = TagSerializer(many=True, required=False)
-    comments = serializers.SerializerMethodField(read_only=True)
-    count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Article
@@ -181,15 +179,6 @@ class ArticleSerializer(serializers.ModelSerializer):
             return False
         except:
             return False
-
-    def get_comments(self, obj):
-        comments = self.context.get("comments")
-        serializer = CommentSerializer(comments, many=True).data
-        return serializer
-
-    # article comment count
-    def get_count(self, obj):
-        return obj.comments.count()
 
     def create(self, validated_data):
         tags = []

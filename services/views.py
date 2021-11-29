@@ -2,6 +2,7 @@ from datetime import datetime
 from django.db.models import Case, When
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
+from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,7 +36,7 @@ class ArticlePagination(PageNumberPagination):
 
 class ArticleCommentPagination(PageNumberPagination):
     page_query_param = "cp"
-    page_size = 30
+    page_size = 50
 
 
 # comment object functions
@@ -134,7 +135,28 @@ class CommentCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: Create Article Comment create view -> Not ArticleCommentUpdateAndDeleteVeiw is needed
+# TODO: post 후 답글 까지도 생각해야 하기 때문에 pagination 방식을 변경해야 할 수도 있다.
+class ArticleCommentListView(APIView, ArticleCommentPagination):
+    serializer_class = services_serializers.CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, pk):
+        article = get_object_or_404(services_models.Article, id=pk)
+        comments = article.comments.all()
+        if comments is not None:
+            comments = comments.annotate(
+                sort_order_true=Case(When(parent=not None, then="parent"), default="id")
+            ).order_by("sort_order_true")
+        # 만약 모든 댓글을 불러왔다면, 모든 댓글을 불러오는 all query를 불러온다. 이때 cp는 무조건 1이어야 한다.
+        if request.GET.get("all", False) == True:
+            self.page_size = 999999
+        page = self.paginate_queryset(comments, request, view=self)
+        response = self.get_paginated_response(
+            self.serializer_class(page, many=True, context={"request": request}).data
+        )
+        return response
+
+
 class ArticleCommentCreateView(APIView):
     serializer_class = services_serializers.CommentSerializer
     permission_classes = [IsAuthenticated]
@@ -158,6 +180,10 @@ class ArticleCommentCreateView(APIView):
 
 
 class CommentUpdateAndDeleteView(APIView):
+    """
+    CommentUpdateAndDeleteView can be used everywhere using comment serializer.
+    """
+
     permission_classes = [IsOwnerOrStaff]
     serializer_class = services_serializers.CommentSerializer
 
@@ -320,11 +346,6 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
     def get(self, request, pk):
         article = get_object_or_404(services_models.Article, id=pk)
         comments = article.comments.all()
-        if comments is not None:
-            comments = comments.annotate(
-                sort_order_true=Case(When(parent=not None, then="parent"), default="id")
-            ).order_by("sort_order_true")
-        page = self.paginate_queryset(comments, request, view=self)
         # TODO: ip를 기준으로 5번 이하로 클릭했다면 조회수가 증가 -> 날짜가 바뀌면 초기화
         client_ip = get_client_ip(request)
         ip_list = services_models.SaveIp.objects.filter(
@@ -355,9 +376,7 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
             article.hit += 1
             article.save()
         return Response(
-            self.serializer_class(
-                article, context={"request": request, "comments": page}
-            ).data,
+            self.serializer_class(article, context={"request": request}).data,
             status=status.HTTP_200_OK,
         )
 
