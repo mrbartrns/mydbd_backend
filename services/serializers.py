@@ -173,7 +173,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             request = self.context.get("request")
             if request.user:
                 user = request.user
-            likes = obj.likes.filter(user=user, like=True)
+            likes = obj.likes.filter(user=user, dislike=True)
             if likes.exists():
                 return True
             return False
