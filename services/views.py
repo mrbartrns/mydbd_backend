@@ -1,12 +1,14 @@
 from datetime import datetime
 from django.db.models import Case, When
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
+
 
 import apis.models as apis_models
 import services.models as services_models
@@ -21,6 +23,8 @@ CATEGORY_DICT = {
     "ADDON": "addon",
 }
 
+TRUE = "true"
+FALSE = "false"
 
 # Comment Pagination
 class CommentPagination(PageNumberPagination):
@@ -36,7 +40,8 @@ class ArticlePagination(PageNumberPagination):
 
 class ArticleCommentPagination(PageNumberPagination):
     page_query_param = "cp"
-    page_size = 50
+    page_size_query_param = "pagesize"
+    page_size = 100
 
 
 # comment object functions
@@ -147,9 +152,7 @@ class ArticleCommentListView(APIView, ArticleCommentPagination):
             comments = comments.annotate(
                 sort_order_true=Case(When(parent=not None, then="parent"), default="id")
             ).order_by("sort_order_true")
-        # 만약 모든 댓글을 불러왔다면, 모든 댓글을 불러오는 all query를 불러온다. 이때 cp는 무조건 1이어야 한다.
-        if request.GET.get("all", False) == True:
-            self.page_size = 999999
+        # 이미 정렬되어 있는 상태다. cursor based pagination은 마지막으로 불러온 id 기준으로 불러온다.
         page = self.paginate_queryset(comments, request, view=self)
         response = self.get_paginated_response(
             self.serializer_class(page, many=True, context={"request": request}).data
@@ -257,7 +260,6 @@ class CommentLikeView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: 날짜가 바뀌면 초기화 카운트를 초기화하고 다시 조회수 증가시키기
 class DetailLikeView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = services_serializers.LikeSerializer
@@ -289,7 +291,6 @@ class DetailLikeView(APIView):
 
 
 # service/forum/list
-# TODO: separate Article get, post view
 class ArticleListView(APIView, ArticlePagination):
     permission_classes = [AllowAny]
     serializer_class = services_serializers.ArticleSerializer
@@ -345,7 +346,6 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
 
     def get(self, request, pk):
         article = get_object_or_404(services_models.Article, id=pk)
-        comments = article.comments.all()
         # TODO: ip를 기준으로 5번 이하로 클릭했다면 조회수가 증가 -> 날짜가 바뀌면 초기화
         client_ip = get_client_ip(request)
         ip_list = services_models.SaveIp.objects.filter(
@@ -395,12 +395,13 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
         article = get_object_or_404(services_models.Article, id=pk)
         self.check_object_permissions(request, article)
         article.delete()  # TODO: 지우지 말고 비활성화로 바꾸기
-        return Response({"detail": "successfully deleted."})
+        return Response({"detail": _("successfully deleted.")})
 
 
 class ArticleLikeView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = services_serializers.LikeSerializer
+    error_message = _("You have been liked this article.")
 
     def get(self, request, pk):
         return Response({"here": "here"}, status=status.HTTP_200_OK)
@@ -422,6 +423,9 @@ class ArticleLikeView(APIView):
                 return Response(
                     self.serializer_class(like).data, status=status.HTTP_202_ACCEPTED
                 )
+                # return Response(
+                #     {"detail": self.error_message}, status=status.HTTP_400_BAD_REQUEST
+                # )
             like = serializer.save(article=article, user=request.user)
             return Response(
                 self.serializer_class(like).data,
