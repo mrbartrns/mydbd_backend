@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 import accounts.serializers as accounts_serializers
+import services
 from .models import *
 
 
@@ -39,6 +40,7 @@ class CommentSerializer(serializers.ModelSerializer):
     dislike_count = serializers.SerializerMethodField()
     user_liked = serializers.SerializerMethodField()
     user_disliked = serializers.SerializerMethodField()
+    pagesize = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Comment
@@ -47,6 +49,7 @@ class CommentSerializer(serializers.ModelSerializer):
             "author": {"read_only": True},
             "depth": {"read_only": True},
             "category": {"read_only": True},
+            "article": {"read_only": True},
         }
 
     def get_children_count(self, obj):
@@ -86,6 +89,14 @@ class CommentSerializer(serializers.ModelSerializer):
             return False
         except TypeError:
             return False
+
+    # def create(self, validated_data, **kwargs):
+    #     print(kwargs)
+    #     parent = validated_data.pop("parent")
+    #     content = validated_data.pop("content")
+    #     ModelClass = self.Meta.model
+    #     instance = ModelClass._default_manager.create(parent=parent, content=content)
+    #     return instance
 
     def update(self, instance, validated_data):
         instance.content = validated_data.get("content", instance.content)
@@ -139,6 +150,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     dislike_count = serializers.SerializerMethodField(read_only=True)
     user_liked = serializers.SerializerMethodField(read_only=True)
     user_disliked = serializers.SerializerMethodField(read_only=True)
+    comment_count = serializers.SerializerMethodField(read_only=True)
     tags = TagSerializer(many=True, required=False)
 
     class Meta:
@@ -180,6 +192,9 @@ class ArticleSerializer(serializers.ModelSerializer):
         except:
             return False
 
+    def get_comment_count(self, obj):
+        return obj.comments.count()
+
     def create(self, validated_data):
         tags = []
         if "tags" in validated_data:
@@ -218,6 +233,7 @@ class ArticlePostSerializer(serializers.ModelSerializer):
         fields = ("author", "title", "content", "tags")
         extra_kwargs = {"author": {"read_only": True}}
 
+    # TODO: 내부 함수를 이용하여 Recompile하기
     def create(self, validated_data):
         tags = []
         if "tags" in validated_data:

@@ -7,7 +7,13 @@ from apis.models import Category
 # Create your models here.
 # comment can be deleted by author, admin or staff
 class Comment(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="author")
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="author",
+        related_name="comments",
+    )
     parent = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -42,7 +48,7 @@ class Comment(models.Model):
         ordering = ["dt_created"]
 
     def __str__(self):
-        return f"Comment by {self.author}"
+        return f"Comment by {self.author}, comment id: {self.id}"
 
 
 class ArticleCategory(models.Model):

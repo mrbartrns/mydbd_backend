@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.core.paginator import Paginator as DjangoPaginator
 from django.db.models import Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -140,7 +141,6 @@ class CommentCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: post 후 답글 까지도 생각해야 하기 때문에 pagination 방식을 변경해야 할 수도 있다.
 class ArticleCommentListView(APIView, ArticleCommentPagination):
     serializer_class = services_serializers.CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -150,9 +150,10 @@ class ArticleCommentListView(APIView, ArticleCommentPagination):
         comments = article.comments.all()
         if comments is not None:
             comments = comments.annotate(
-                sort_order_true=Case(When(parent=not None, then="parent"), default="id")
+                sort_order_true=Case(
+                    When(parent__isnull=False, then="parent"), default="id"
+                )
             ).order_by("sort_order_true")
-        # 이미 정렬되어 있는 상태다. cursor based pagination은 마지막으로 불러온 id 기준으로 불러온다.
         page = self.paginate_queryset(comments, request, view=self)
         response = self.get_paginated_response(
             self.serializer_class(page, many=True, context={"request": request}).data
@@ -160,7 +161,10 @@ class ArticleCommentListView(APIView, ArticleCommentPagination):
         return response
 
 
-class ArticleCommentCreateView(APIView):
+# 댓글을 post 한 후에는 자신의 댓글을 포함하여 가장 마지막 페이지로 이동해야 한다.
+# 댓글 pagesize를 post시 함께 보낸 후, pagesize를 나눈 후 가장 바깥쪽의 페이지를 리턴한다.
+class ArticleCommentCreateView(APIView, ArticleCommentPagination):
+    model_class = services_models.Comment
     serializer_class = services_serializers.CommentSerializer
     permission_classes = [IsAuthenticated]
 
@@ -174,9 +178,17 @@ class ArticleCommentCreateView(APIView):
                 return Response(
                     {"detail": "bad request"}, status=status.HTTP_400_BAD_REQUEST
                 )
+            page_size = data.pop("pagesize")
             comment = serializer.save(author=request.user, article=article)
+            comment_list = self.model_class.objects.filter(article__id=pk)
+            paginator = DjangoPaginator(comment_list, page_size)
+            last_page = paginator.num_pages
+            page = paginator.page(last_page)
             return Response(
-                services_serializers.CommentSerializer(comment).data,
+                {
+                    "my_comment": self.serializer_class(comment).data,
+                    "comment_list": self.serializer_class(page, many=True).data,
+                },
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
