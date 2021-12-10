@@ -5,7 +5,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 import accounts.serializers as accounts_serializers
-import services
 from .models import *
 
 
@@ -40,7 +39,6 @@ class CommentSerializer(serializers.ModelSerializer):
     dislike_count = serializers.SerializerMethodField()
     user_liked = serializers.SerializerMethodField()
     user_disliked = serializers.SerializerMethodField()
-    pagesize = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Comment
@@ -89,14 +87,6 @@ class CommentSerializer(serializers.ModelSerializer):
             return False
         except TypeError:
             return False
-
-    # def create(self, validated_data, **kwargs):
-    #     print(kwargs)
-    #     parent = validated_data.pop("parent")
-    #     content = validated_data.pop("content")
-    #     ModelClass = self.Meta.model
-    #     instance = ModelClass._default_manager.create(parent=parent, content=content)
-    #     return instance
 
     def update(self, instance, validated_data):
         instance.content = validated_data.get("content", instance.content)

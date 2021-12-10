@@ -178,18 +178,9 @@ class ArticleCommentCreateView(APIView, ArticleCommentPagination):
                 return Response(
                     {"detail": "bad request"}, status=status.HTTP_400_BAD_REQUEST
                 )
-            page_size = data.pop("pagesize")
             comment = serializer.save(author=request.user, article=article)
-            comment_list = self.model_class.objects.filter(article__id=pk)
-            paginator = DjangoPaginator(comment_list, page_size)
-            last_page = paginator.num_pages
-            page = paginator.page(last_page)
             return Response(
-                {
-                    "my_comment": self.serializer_class(comment).data,
-                    "comment_list": self.serializer_class(page, many=True).data,
-                },
-                status=status.HTTP_201_CREATED,
+                self.serializer_class(comment).data, status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

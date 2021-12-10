@@ -9,7 +9,7 @@ from apis.models import Category
 class Comment(models.Model):
     author = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         verbose_name="author",
         related_name="comments",
