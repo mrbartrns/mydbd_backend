@@ -48,6 +48,7 @@ class CommentSerializer(serializers.ModelSerializer):
             "depth": {"read_only": True},
             "category": {"read_only": True},
             "article": {"read_only": True},
+            "is_deleted": {"read_only": True},
         }
 
     def get_children_count(self, obj):

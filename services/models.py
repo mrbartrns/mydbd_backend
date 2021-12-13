@@ -41,6 +41,7 @@ class Comment(models.Model):
         related_name="comments",
     )
     content = models.TextField(verbose_name="content", max_length=500)
+    is_deleted = models.BooleanField(verbose_name="is_deleted", default=False)
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
     dt_modified = models.DateTimeField(auto_now=True, verbose_name="수정일")
 
