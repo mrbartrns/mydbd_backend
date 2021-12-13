@@ -16,6 +16,7 @@ urlpatterns = [
     path("forum/article/<int:pk>/comment/create", ArticleCommentCreateView.as_view()),
     path("comment/<int:pk>", CommentUpdateAndDeleteView.as_view()),
     path("comment/<int:pk>/like", CommentLikeView.as_view()),
+    path("comment/<int:pk>/delete", CommentDeleteView.as_view()),
     path("search/tag", TagSearchView.as_view()),
     path("forum/article/<int:pk>/like", ArticleLikeView.as_view()),
     path("forum/list", ArticleListView.as_view()),

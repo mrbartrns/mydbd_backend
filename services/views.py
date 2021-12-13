@@ -263,6 +263,14 @@ class CommentLikeView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CommentDeleteView(APIView):
+    permission_class = [IsOwnerOrStaff]
+    serializer_class = services_serializers.CommentSerializer
+
+    def post(self, request, pk):
+        pass
+
+
 class DetailLikeView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = services_serializers.LikeSerializer
