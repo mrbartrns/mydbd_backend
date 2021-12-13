@@ -266,9 +266,14 @@ class CommentLikeView(APIView):
 class CommentDeleteView(APIView):
     permission_class = [IsOwnerOrStaff]
     serializer_class = services_serializers.CommentSerializer
+    model_class = services_models.Comment
 
     def post(self, request, pk):
-        pass
+        comment = get_object_or_404(self.model_class, id=pk)
+        self.check_object_permissions(request, comment)
+        comment.is_deleted = True
+        comment.save()
+        return Response(self.serializer_class(comment).data, status=status.HTTP_200_OK)
 
 
 class DetailLikeView(APIView):
