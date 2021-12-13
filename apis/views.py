@@ -11,6 +11,7 @@ from apis.models import Killer, Survivor, Item, ItemAddon, Perk
 from backend.permissions import IsAuthenticatedOrReadOnly
 
 
+# TODO: SET page size query param
 class APIPagination(PageNumberPagination):
     page_query_param = "page"
     page_size = 10
