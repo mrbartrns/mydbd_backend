@@ -154,3 +154,15 @@ class SaveIp(models.Model):
 
     def __str__(self) -> str:
         return f"{self.ip_address}"
+
+
+class Image(models.Model):
+    article = models.ForeignKey(
+        Article, on_delete=models.CASCADE, null=True, blank=True, related_name="images"
+    )
+    image = models.ImageField(upload_to="images/articles")
+    dt_created = models.DateTimeField(verbose_name="date created", auto_now_add=True)
+    dt_modified = models.DateTimeField(verbose_name="date modified", auto_now=True)
+
+    def __str__(self) -> str:
+        return f"Image from article id {self.article.id}"
