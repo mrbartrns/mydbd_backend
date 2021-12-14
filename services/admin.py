@@ -45,3 +45,10 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ("name",)
     list_display_links = ("name",)
     list_filter = ("name",)
+
+
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ("image", "dt_created", "dt_modified")
+    list_display_links = ("image",)
+    list_filter = ("dt_created", "dt_modified")

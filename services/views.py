@@ -468,3 +468,18 @@ class TagSearchView(APIView):
         return Response(
             self.serializer_class(result, many=True).data, status=status.HTTP_200_OK
         )
+
+
+class ImageUploadView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = services_serializers.ImageSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            image = serializer.save()
+            return Response(
+                self.serializer_class(image).data,
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

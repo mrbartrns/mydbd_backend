@@ -11,8 +11,7 @@ from .models import *
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ("article", "image", "dt_created", "dt_modified")
-        extra_kwargs = {"article": {"read_only": True}}
+        fields = ("image", "dt_created", "dt_modified")
 
 
 class CommentRecursiveSerializer(serializers.ModelSerializer):
@@ -150,7 +149,6 @@ class ArticleSerializer(serializers.ModelSerializer):
     user_disliked = serializers.SerializerMethodField(read_only=True)
     comment_count = serializers.SerializerMethodField(read_only=True)
     tags = TagSerializer(many=True, required=False)
-    images = ImageSerializer(many=True, required=False)
 
     class Meta:
         model = Article

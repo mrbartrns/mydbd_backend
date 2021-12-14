@@ -18,6 +18,7 @@ urlpatterns = [
     path("comment/<int:pk>/like", CommentLikeView.as_view()),
     path("comment/<int:pk>/delete", CommentDeleteView.as_view()),
     path("search/tag", TagSearchView.as_view()),
+    path("forum/image/upload", ImageUploadView.as_view()),
     path("forum/article/<int:pk>/like", ArticleLikeView.as_view()),
     path("forum/list", ArticleListView.as_view()),
     path("forum/article/create", ArticleCreateView().as_view()),
