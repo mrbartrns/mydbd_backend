@@ -323,7 +323,7 @@ class ArticleListView(APIView, ArticlePagination):
 
 class ArticleCreateView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = services_serializers.ArticlePostSerializer
+    serializer_class = services_serializers.ArticleSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
