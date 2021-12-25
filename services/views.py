@@ -36,6 +36,7 @@ class CommentPagination(PageNumberPagination):
 
 class ArticlePagination(PageNumberPagination):
     page_query_param = "page"
+    page_size_query_param = "pagesize"
     page_size = 30
 
 
