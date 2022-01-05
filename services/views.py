@@ -30,7 +30,8 @@ FALSE = "false"
 # Comment Pagination
 class CommentPagination(PageNumberPagination):
     # TODO: change page_query_param page -> cp
-    page_query_param = "page"
+    page_query_param = "cp"
+    page_size_query_param = "pagesize"
     page_size = 10
 
 
@@ -186,7 +187,7 @@ class ArticleCommentCreateView(APIView, ArticleCommentPagination):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CommentUpdateAndDeleteView(APIView):
+class CommentUpdateView(APIView):
     """
     CommentUpdateAndDeleteView can be used everywhere using comment serializer.
     """
@@ -213,13 +214,13 @@ class CommentUpdateAndDeleteView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        comment = services_models.Comment.objects.get(id=pk)
-        self.check_object_permissions(request, comment)
-        comment.delete()
-        return Response(
-            {"success": "successfully deleted."}, status=status.HTTP_202_ACCEPTED
-        )
+    # def delete(self, request, pk):
+    #     comment = services_models.Comment.objects.get(id=pk)
+    #     self.check_object_permissions(request, comment)
+    #     comment.delete()
+    #     return Response(
+    #         {"success": "successfully deleted."}, status=status.HTTP_202_ACCEPTED
+    #     )
 
 
 class CommentLikeView(APIView):
@@ -357,8 +358,8 @@ class ArticleUpdateView(APIView):
 
 
 # TODO: test post, get, delete first and after put
-class ArticleDetailView(APIView, ArticleCommentPagination):
-    permission_classes = [IsOwnerOrStaff]
+class ArticleDetailView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = services_serializers.ArticleSerializer
 
     def get(self, request, pk):
@@ -370,20 +371,11 @@ class ArticleDetailView(APIView, ArticleCommentPagination):
         )
         if ip_list.exists():
             client = ip_list[0]
-            if client.counts < 5:
-                client.counts += 1
-                client.save()
-                article.hit += 1
-                article.save()
-            # FIXME: Can't subtract offset-naive and offset-aware datetimes
-            # else:
-            #     date_diff = datetime.now() - client.dt_modified
-            #     if date_diff >= 1:
-            #         client.counts = 0
-            #         client.counts += 1
-            #         client.save()
-            #         article.hit += 1
-            #         article.save()
+            # if client.counts < 5:
+            client.counts += 1
+            client.save()
+            article.hit += 1
+            article.save()
         else:
             client = services_models.SaveIp.objects.create(
                 ip_address=client_ip, article=article

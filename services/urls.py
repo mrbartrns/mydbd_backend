@@ -4,17 +4,9 @@ from .views import *
 
 # TODO: make clean url pattern
 urlpatterns = [
-    path(
-        "list/<str:category_name>/<int:obj_id>/comments",
-        CommentListView.as_view(),
-    ),
-    path(
-        "list/<str:category_name>/<int:obj_id>/comments/create",
-        CommentCreateView.as_view(),
-    ),
     path("forum/article/<int:pk>/comment/list", ArticleCommentListView.as_view()),
     path("forum/article/<int:pk>/comment/create", ArticleCommentCreateView.as_view()),
-    path("comment/<int:pk>", CommentUpdateAndDeleteView.as_view()),
+    path("comment/<int:pk>", CommentUpdateView.as_view()),
     path("comment/<int:pk>/like", CommentLikeView.as_view()),
     path("comment/<int:pk>/delete", CommentDeleteView.as_view()),
     path("search/tag", TagSearchView.as_view()),
@@ -24,6 +16,14 @@ urlpatterns = [
     path("forum/article/create", ArticleCreateView().as_view()),
     path("forum/article/<int:pk>", ArticleDetailView.as_view()),
     path("forum/article/<int:pk>/edit", ArticleUpdateView.as_view()),
+    path(
+        "<str:category_name>/<int:obj_id>/comments",
+        CommentListView.as_view(),
+    ),
+    path(
+        "<str:category_name>/<int:obj_id>/comment/create",
+        CommentCreateView.as_view(),
+    ),
     path(
         "<str:category_name>/<int:obj_id>/like", DetailLikeView.as_view()
     ),  # <str:category> 에 forum이 매칭될 수 있으므로 항상 맨 뒤에 위치

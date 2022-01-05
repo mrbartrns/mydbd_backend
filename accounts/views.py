@@ -50,11 +50,12 @@ class UserLogoutView(APIView):
 # test
 class ValidateSimpleJwtTokenView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get(self, request):
         try:
             # if authenticated, simple-jwt returns request.user object
-            serializer = UserSerializer(request.user).data
-            return Response({"user": serializer}, status=status.HTTP_200_OK)
+            serializer = self.serializer_class(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+            return Response(e, status=status.HTTP_401_UNAUTHORIZED)

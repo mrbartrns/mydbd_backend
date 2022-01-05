@@ -14,6 +14,7 @@ from backend.permissions import IsAuthenticatedOrReadOnly
 # TODO: SET page size query param
 class APIPagination(PageNumberPagination):
     page_query_param = "page"
+    page_size_query_param = "pagesize"
     page_size = 10
 
 

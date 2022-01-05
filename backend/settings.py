@@ -155,7 +155,7 @@ SIMPLE_JWT = {
     "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": None,
     "AUDIENCE": None,
-    "ISSUER": None,
+    "ISSUER": "mydbd_auth_token",
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
